@@ -1,0 +1,47 @@
+:root {
+    --tile-size: 0px; /* This will be changed in the JS. */
+}
+
+* {
+    overflow: hidden;
+    font-family: 'Lucida Sans MS'; /* TODO: change */
+}
+
+.tile {
+    display: block;
+    position: absolute;
+
+    width: var(--tile-size);
+    height: var(--tile-size);
+}
+
+.player {
+    display: block;
+    position: absolute;
+
+    width: var(--tile-size);
+    height: var(--tile-size);
+
+    left: calc(100vw / 2 - var(--tile-size) / 2);
+    top: calc(100vh / 2 - var(--tile-size) / 2);
+
+    background: black;
+    border-radius: var(--tile-size);
+
+    z-index: 1000;
+}
+
+.indicator {
+    display: block;
+    position: absolute;
+
+    width: calc(var(--tile-size) / 2);
+    height: calc(var(--tile-size) / 2);
+
+    background: black;
+    border-radius: calc(var(--tile-size) / 2);
+
+    transform-origin: center center;
+
+    z-index: 1000;
+}
