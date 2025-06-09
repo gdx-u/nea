@@ -107,14 +107,14 @@ class Player {
 
         v *= this.base_speed;
 
-        let prev_x = player_x;
-        let prev_y = player_y;
+        // let prev_x = player_x;
+        // let prev_y = player_y;
 
         let x_movement = 0;
         let y_movement = 0;
 
-        const static_player_x = window.innerWidth / 2 - tile_size / 2;
-        const static_player_y = window.innerHeight / 2 - tile_size / 2;
+        const static_player_x = window.innerWidth / 2 - player_size / 2 - offset_x;
+        const static_player_y = window.innerHeight / 2 - player_size / 2 - offset_y;
 
         if (held_keys.includes("a")) {
             x_movement = -1 * v * Math.min(this.keys["a"].held_for, this.terminal);
@@ -127,7 +127,16 @@ class Player {
         if (x_movement) {
             for (let tile of Tile.tiles) {
                 let changed = false;
-                while (tiles_collide(static_player_x, static_player_y, tile.x * tile_size - player_x, tile.y * tile_size - player_y)) {
+                while (collides(
+                    static_player_x, 
+                    static_player_y,
+                    player_size,
+                    player_size, 
+                    tile.x * tile_size - player_x, 
+                    tile.y * tile_size - player_y,
+                    tile_size,
+                    tile_size
+                )) {
                     player_x -= Math.sign(x_movement);
                     changed = true;
                 }
@@ -147,7 +156,16 @@ class Player {
         if (y_movement) {
             for (let tile of Tile.tiles) {
                 let changed = false;
-                while (tiles_collide(static_player_x, static_player_y, tile.x * tile_size - player_x, tile.y * tile_size - player_y)) {
+                while (collides(
+                    static_player_x, 
+                    static_player_y,
+                    player_size,
+                    player_size, 
+                    tile.x * tile_size - player_x, 
+                    tile.y * tile_size - player_y,
+                    tile_size,
+                    tile_size
+                )) {
                     player_y -= Math.sign(y_movement);
                     changed = true;
                 }
@@ -187,11 +205,21 @@ class Player {
 
 let tile_map = {};
 const tile_size = 16;
+const player_size = 14;
+
 let player_x = 0; // Used to shift the tile grid
 let player_y = 0; // ^                         ^
 
 const css_root = document.querySelector(":root");
+const offset_x = window.innerWidth % 2 == 1 ? 0.5 : 0
+const offset_y = window.innerHeight % 2 == 1 ? 0.5 : 0
+
+
 css_root.style.setProperty("--tile-size", `${tile_size}px`);
+css_root.style.setProperty("--player-size", `${player_size}px`);
+css_root.style.setProperty("--offset-x", `${offset_x}px`);
+css_root.style.setProperty("--offset-y", `${offset_y}px`);
+
 
 let mouse_x = 0;
 let mouse_y = 0;
@@ -242,21 +270,19 @@ function rotate(px, py, cx, cy, theta) {
     ];
 }
 
-function tiles_collide(x1, y1, x2, y2) {
-    return y1 + tile_size > y2 
-        && y1 < y2 + tile_size
-        && x1 + tile_size > x2
-        && x1 < x2 + tile_size;
+function collides(x1, y1, w1, h1, x2, y2, w2, h2) {
+    return y1 + h1 > y2 
+        && y1 < y2 + h2
+        && x1 + w1 > x2
+        && x1 < x2 + w2;
 }
 
 function clamp(num, min, max) {
     return Math.max(Math.min(num, max), min)
 }
 
-
-
-async function load_level(level_id, entrance) {
-    let file = await fetch(`./levels/${level_id}.txt`);
+async function load_room(off_x, off_y, room_id, entrance) {
+    let file = await fetch(`./rooms/${room_id}.txt`);
     let text = await file.text();
     let x = 0;
     let y = 0;
