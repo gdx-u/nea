@@ -1,5 +1,7 @@
 :root {
     --tile-size: 0px; /* This will be changed in the JS. */
+    --player-size: 0px; /* ^^^ */
+    --offset: 0px;
 }
 
 * {
@@ -19,14 +21,14 @@
     display: block;
     position: absolute;
 
-    width: var(--tile-size);
-    height: var(--tile-size);
+    width: var(--player-size);
+    height: var(--player-size);
 
-    left: calc(100vw / 2 - var(--tile-size) / 2);
-    top: calc(100vh / 2 - var(--tile-size) / 2);
+    left: calc(100vw / 2 - var(--player-size) / 2 - var(--offset-x));
+    top: calc(100vh / 2 - var(--player-size) / 2 - var(--offset-y));
 
     background: black;
-    border-radius: var(--tile-size);
+    border-radius: var(--player-size);
 
     z-index: 1000;
 }
