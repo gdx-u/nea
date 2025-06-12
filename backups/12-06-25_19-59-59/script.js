@@ -1,13 +1,6 @@
-const fps = 144;             // Frames per second
+const fps = 60;             // Frames per second
 const mspf = 1000 / fps;    // Milliseconds per frame
 let frame = 0;
-
-// const slowdown = 60 / fps;
-const slowdown = 0.6;
-
-let entities = [];
-
-let prev_tick;
 
 class Tile {
     static tiles = [];
@@ -47,11 +40,9 @@ class Tile {
 
 class Player {
     constructor() {
-        this.terminal = 8 * slowdown; // Max speed
+        this.terminal = 8; // Max speed
         this.base_speed = 1; // For dashing
         this.dashing = false;
-
-        this.type = "player";
 
         this.keys = {}; // Tracks held/released keys
 
@@ -91,33 +82,15 @@ class Player {
         // Create the weapon indicator
         this.indicator = document.createElement("div");
         this.indicator.className = "indicator";
-        this.indicator_x = null;
-        this.indicator_y = null;
-        this.indicator_angle = null;
         document.body.appendChild(this.indicator);
 
 
         let bound = this.el.getBoundingClientRect();
-        this.center_x = bound.left + bound.width / 2 - offset_x;
-        this.center_y = bound.top + bound.height / 2 - offset_y;
-
-        this.tlx = bound.left - offset_x;
-        this.tly = bound.top - offset_y;
-
+        this.center_x = bound.left + bound.width / 2;
+        this.center_y = bound.top + bound.height / 2;
     }
 
     tick() {
-        if (!prev_tick) {
-            prev_tick = Date.now()
-        } else {
-            let curr = Date.now();
-            let elapsed = curr - prev_tick;
-            prev_tick = curr;
-            let curr_fps = 1000 / elapsed;
-            curr_fps = Math.round(curr_fps);
-            document.getElementById("fps").innerText = `${curr_fps}FPS`;
-        }
-
         frame++;
 
         // Update position
@@ -128,11 +101,11 @@ class Player {
 
         let held_keys = Object.keys(this.keys);
 
-        let v = slowdown;
+        let v = 1;
         if (
             (held_keys.includes("a") || held_keys.includes("d")) &&
             (held_keys.includes("w") || held_keys.includes("s"))
-        ) v *= 1 / Math.SQRT2;
+        ) v = 1 / Math.SQRT2;
 
         if (held_keys.includes(" ") && this.keys[" "].held_for == 1 && this.base_speed == 1) {
             this.base_speed = 3;
@@ -150,6 +123,9 @@ class Player {
         let x_movement = 0;
         let y_movement = 0;
 
+        const static_player_x = window.innerWidth / 2 - player_size / 2 - offset_x;
+        const static_player_y = window.innerHeight / 2 - player_size / 2 - offset_y;
+
         if (held_keys.includes("a")) {
             // x_movement = -1 * v * Math.min(this.keys["a"].held_for, this.terminal);
             x_movement = -v * this.terminal
@@ -164,8 +140,8 @@ class Player {
             for (let tile of Tile.tiles) {
                 let changed = false;
                 while (collides(
-                    this.tlx, 
-                    this.tly,
+                    static_player_x, 
+                    static_player_y,
                     player_size,
                     player_size, 
                     tile.x * tile_size - player_x, 
@@ -194,8 +170,8 @@ class Player {
             for (let tile of Tile.tiles) {
                 let changed = false;
                 while (collides(
-                    this.tlx, 
-                    this.tly,
+                    static_player_x, 
+                    static_player_y,
                     player_size,
                     player_size, 
                     tile.x * tile_size - player_x, 
@@ -235,11 +211,7 @@ class Player {
         this.indicator.style.left = (cx - iw) + 'px';
         this.indicator.style.top = (cy - ih) + 'px';
 
-        this.indicator_x = cx - iw;
-        this.indicator_y = cy - ih;
-        this.indicator_angle = angle;
-
-        // this.indicator.style.transform = `rotate(${angleDeg}deg)`;
+        this.indicator.style.transform = `rotate(${angleDeg}deg)`;
 
     }
 }
@@ -465,7 +437,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
     for (let exit of exits) {
         let removed_tiles = get_door_tiles(width, height, x_mid, y_mid, exit);
         let [prop_x, prop_y, tiles_] = create_hallway(exit, removed_tiles[(door_width - 1) / 2][0] + off_x, removed_tiles[(door_width - 1) / 2][1] + off_y);
-        if (depth < max_depth) {
+        if (depth < 3) {
             await load_room(prop_x, prop_y, random(1, num_rooms), opposites[exit], depth + 1).then(res => {
                 if (res == true) {
                     block_list = block_list.concat(removed_tiles);
@@ -504,9 +476,4 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 // --- === ≡≡≡ MAIN BODY ≡≡≡ === --- //
 
 let player = new Player();
-entities.push(player);
-
-
 load_room(player.center_x / tile_size, player.center_y / tile_size, 0);
-
-const max_depth = 3;

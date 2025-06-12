@@ -7,7 +7,6 @@
 * {
     overflow: hidden;
     font-family: 'Lucida Sans MS'; /* TODO: change */
-    user-select: none;
 }
 
 .tile {
@@ -16,23 +15,6 @@
 
     width: var(--tile-size);
     height: var(--tile-size);
-}
-
-#fps {
-    position: absolute;
-    display: block;
-    top: 40px;
-    left: 40px;
-}
-
-.bullet {
-    display: block;
-    position: absolute;
-
-    width: calc(var(--tile-size) / 8);
-    height: calc(var(--tile-size) / 8);
-
-    background-color: red;
 }
 
 .player {

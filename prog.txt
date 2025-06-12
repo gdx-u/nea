@@ -25,3 +25,18 @@
                  - script: 476
                  - style: 49
                  - TOTAL: 613
+                 
+12/06/25 19:59:59: about to add enemies
+                 - auxiliary: 86
+                 - index: 13
+                 - script: 479
+                 - style: 49
+                 - TOTAL: 627
+
+12/06/25 22:21:02: added bullets & increased fps (fix slowdown)
+                 - auxiliary: 86
+                 - index: 15
+                 - script: 512
+                 - style: 67
+                 - TOTAL: 680
+
