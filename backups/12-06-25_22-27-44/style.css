@@ -16,8 +16,6 @@
 
     width: var(--tile-size);
     height: var(--tile-size);
-
-    will-change: transform;
 }
 
 #fps {

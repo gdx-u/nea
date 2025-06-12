@@ -6,7 +6,7 @@
 
 * {
     overflow: hidden;
-    font-family: 'Courier New'; /* TODO: change */
+    font-family: 'Lucida Sans MS'; /* TODO: change */
     user-select: none;
 }
 
@@ -16,8 +16,6 @@
 
     width: var(--tile-size);
     height: var(--tile-size);
-
-    will-change: transform;
 }
 
 #fps {

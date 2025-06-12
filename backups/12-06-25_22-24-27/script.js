@@ -9,11 +9,6 @@ let entities = [];
 
 let prev_tick;
 
-function get_relevant_tiles(x, y, range, transform) {
-    transform = transform || ((a, b) => {a, b});
-    return Tile.tiles.filter(e => {return Math.hypot(...transform(e.x, x, e.y, y)) <= range});
-}
-
 class Tile {
     static tiles = [];
 
@@ -40,9 +35,8 @@ class Tile {
     }
 
     tick() {
-        // this.el.style.left = `${this.x * tile_size - player_x}px`;
-        // this.el.style.top = `${this.y * tile_size - player_y}px`;
-        this.el.style.transform = `translate(${this.x * tile_size - player_x}px, ${this.y * tile_size - player_y}px)`;
+        this.el.style.left = `${this.x * tile_size - player_x}px`;
+        this.el.style.top = `${this.y * tile_size - player_y}px`;
     }
 
     append_el() {
@@ -104,7 +98,6 @@ class Player {
 
 
         let bound = this.el.getBoundingClientRect();
-        this.bound = bound;
         this.center_x = bound.left + bound.width / 2 - offset_x;
         this.center_y = bound.top + bound.height / 2 - offset_y;
 
@@ -114,16 +107,8 @@ class Player {
     }
 
     tick() {
-        let dt;
-        // let relevant_tiles = get_relevant_tiles(
-        //     this.center_x, this.center_y, 100,
-        //     (x, px, y, py) => {return [x * tile_size - player_x - px, y * tile_size - player_y - py]}
-        // );
-        let relevant_tiles = [];
-
         if (!prev_tick) {
             prev_tick = Date.now()
-            dt = 1;
         } else {
             let curr = Date.now();
             let elapsed = curr - prev_tick;
@@ -131,8 +116,6 @@ class Player {
             let curr_fps = 1000 / elapsed;
             curr_fps = Math.round(curr_fps);
             document.getElementById("fps").innerText = `${curr_fps}FPS`;
-
-            dt = elapsed / mspf;
         }
 
         frame++;
@@ -145,7 +128,7 @@ class Player {
 
         let held_keys = Object.keys(this.keys);
 
-        let v = slowdown * dt;
+        let v = slowdown;
         if (
             (held_keys.includes("a") || held_keys.includes("d")) &&
             (held_keys.includes("w") || held_keys.includes("s"))
@@ -155,7 +138,7 @@ class Player {
             this.base_speed = 3;
             this.dashing = true;
         } else {
-            this.base_speed = Math.max(1, this.base_speed * 0.97);
+            this.base_speed = Math.max(1, this.base_speed * 0.95);
             if (this.base_speed < 1.4) this.dashing = false;
         }
 
@@ -178,7 +161,7 @@ class Player {
         player_x = Math.round(player_x);
         
         if (x_movement) {
-            for (let tile of relevant_tiles) {
+            for (let tile of Tile.tiles) {
                 let changed = false;
                 while (collides(
                     this.tlx, 
@@ -208,7 +191,7 @@ class Player {
         player_y = Math.round(player_y);
 
         if (y_movement) {
-            for (let tile of relevant_tiles) {
+            for (let tile of Tile.tiles) {
                 let changed = false;
                 while (collides(
                     this.tlx, 
@@ -239,7 +222,8 @@ class Player {
         const angle = Math.atan2(dy, dx);
         const angleDeg = angle * 180 / Math.PI;
 
-        const radius = (this.bound.width / 2) + 10; // adjust “20” as needed
+        const bound = this.el.getBoundingClientRect();
+        const radius = (bound.width / 2) + 10; // adjust “20” as needed
 
         const indicator_bound = this.indicator.getBoundingClientRect();
         const iw = indicator_bound.width / 2;
@@ -300,9 +284,8 @@ function create_tile_div(x, y, information) {
     tile.className = "tile";
     tile.id = `${x};${y}`;
 
-    // tile.style.left = `${x * tile_size - player_y}px`;
-    // tile.style.top = `${y * tile_size - player_x}px`;
-    tile.style.transform = `translate(${x * tile_size - player_y}px, ${y * tile_size - player_x}px)`;
+    tile.style.left = `${x * tile_size - player_y}px`;
+    tile.style.top = `${y * tile_size - player_x}px`;
     // Note that not multiplying px/py by tile_size allows the map to go off-grid.
 
     tile.style.background = information.colour;
@@ -329,6 +312,7 @@ const opposites = {
 };
 
 const door_width = 7;
+const num_rooms = 2;
 
 function create_hallway(direction, start_cx, start_cy) {
     let dx, dy, active;
@@ -469,8 +453,6 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 
     let or_x = x;
     let or_y = y;
-    
-    rooms.push([or_x, or_y, width, height]);
 
     let block_list = get_door_tiles(width, height, x_mid, y_mid, entrance);    
 
@@ -489,8 +471,8 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                     block_list = block_list.concat(removed_tiles);
                     for (let tile_ of tiles_) tile_.append_el();
                 }
+                console.log("INTERSECTED")
             });
-            await sleep(10);
         } else {
             // block_list = block_list.concat(removed_tiles);
             // for (let tile_ of tiles_) tile_.append_el();
@@ -514,6 +496,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
         x++;
     }
 
+    rooms.push([or_x, or_y, width, height]);
 
     return true;
 }
@@ -526,5 +509,4 @@ entities.push(player);
 
 load_room(player.center_x / tile_size, player.center_y / tile_size, 0);
 
-const max_depth = 7;
-const num_rooms = 3;
+const max_depth = 3;
