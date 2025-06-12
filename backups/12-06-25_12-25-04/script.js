@@ -10,8 +10,7 @@ class Tile {
     * @param {Number} x The tile's position on the X-axis (right positive)
     * @param {Number} y The tile's position on the Y-axis (down positive)
     */
-    constructor(x, y, information, append) {
-        this.append = append == false ? false : true;
+    constructor(x, y, information) {
         this.x = x;
         this.y = y;
         this.information = information;
@@ -22,7 +21,7 @@ class Tile {
         this.el = create_tile_div(this.x, this.y, {
             colour: this.colours[this.information.type]
         });
-        if (this.append) document.body.appendChild(this.el);
+        document.body.appendChild(this.el);
 
         Tile.tiles.push(this);
     }
@@ -30,11 +29,6 @@ class Tile {
     tick() {
         this.el.style.left = `${this.x * tile_size - player_x}px`;
         this.el.style.top = `${this.y * tile_size - player_y}px`;
-    }
-
-    append_el() {
-        if (!this.append) document.body.appendChild(this.el);
-        this.append = true;
     }
 }
 
@@ -214,7 +208,6 @@ class Player {
 }
 
 let tile_map = {};
-let rooms = [];
 const tile_size = 16;
 const player_size = 14;
 
@@ -310,28 +303,27 @@ function create_hallway(direction, start_cx, start_cy) {
 
     let cx = start_cx;
     let cy = start_cy;
-    let ret = []
 
     let hallway_length = random(5, 9);
     for (let i = 0; i < hallway_length; i++) {
-        ret.push(new Tile(
+        let tile = new Tile(
             cx - (active == "x" ? (door_width - 1) / 2 : 0),
             cy - (active == "y" ? (door_width - 1) / 2 : 0), 
             {
                 type: "wall"
-        }, false));
-        ret.push(new Tile(
+        });
+        let tile2 = new Tile(
             cx + (active == "x" ? (door_width - 1) / 2 : 0),
             cy + (active == "y" ? (door_width - 1) / 2 : 0), 
             {
                 type: "wall"
-        }, false));
+        });
 
         cx += dx;
         cy += dy;
     }
 
-    return [cx, cy, ret];
+    return [cx, cy];
 }
 
 function center_room(direction, width, height) {
@@ -396,32 +388,13 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
     
     let x_mid = (width - 1) / 2;
     let y_mid = (height - 1) / 2;
-
+    
     [cxo, cyo] = center_room(opposites[entrance || "X"], width, height);
     off_x += cxo;
     off_y += cyo;
-
-    off_x = Math.round(off_x);
-    off_y = Math.round(off_y);
     
     let x = off_x;
     let y = off_y;
-
-    for (let room of rooms) {
-        if (collides(
-            room[0],
-            room[1],
-            room[2],
-            room[3],
-            x,
-            y,
-            width,
-            height
-        )) return false;
-    }
-
-    let or_x = x;
-    let or_y = y;
 
     let block_list = get_door_tiles(width, height, x_mid, y_mid, entrance);    
 
@@ -433,18 +406,10 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 
     for (let exit of exits) {
         let removed_tiles = get_door_tiles(width, height, x_mid, y_mid, exit);
-        let [prop_x, prop_y, tiles_] = create_hallway(exit, removed_tiles[(door_width - 1) / 2][0] + off_x, removed_tiles[(door_width - 1) / 2][1] + off_y);
-        if (depth < 3) {
-            await load_room(prop_x, prop_y, random(1, num_rooms), opposites[exit], depth + 1).then(res => {
-                if (res == true) {
-                    block_list = block_list.concat(removed_tiles);
-                    for (let tile_ of tiles_) tile_.append_el();
-                }
-                console.log("INTERSECTED")
-            });
-        } else {
-            // block_list = block_list.concat(removed_tiles);
-            // for (let tile_ of tiles_) tile_.append_el();
+        block_list = block_list.concat(removed_tiles);
+        let [prop_x, prop_y] = create_hallway(exit, removed_tiles[(door_width - 1) / 2][0] + off_x, removed_tiles[(door_width - 1) / 2][1] + off_y);
+        if (depth < 1) {
+            load_room(prop_x, prop_y, random(1, num_rooms), opposites[exit], depth + 1);
         }
     }
 
@@ -465,9 +430,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
         x++;
     }
 
-    rooms.push([or_x, or_y, width, height]);
-
-    return true;
+    return;
 }
 
 // --- === ≡≡≡ MAIN BODY ≡≡≡ === --- //

@@ -1,0 +1,27 @@
+12/06/25 11:28:13: added exits
+                 - auxiliary: 75
+                 - index: 13
+                 - script: 348
+                 - style: 49
+                 - TOTAL: 485
+
+12/06/25 11:50:00: finished hallways!!
+                 - auxiliary: 75
+                 - index: 13
+                 - script: 404
+                 - style: 52
+                 - TOTAL: 544
+
+12/06/25 12:25:04: added recursion
+                 - auxiliary: 75
+                 - index: 13
+                 - script: 439
+                 - style: 49
+                 - TOTAL: 576
+                 
+12/06/25 12:46:54: removed intersections!!
+                 - auxiliary: 75
+                 - index: 13
+                 - script: 476
+                 - style: 49
+                 - TOTAL: 613
