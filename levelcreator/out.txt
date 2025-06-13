@@ -1,9 +1,15 @@
-#########
-#       #
-#       #
-#       #
-#       #
-#       #
-#       #
-#       #
-#########
+###############
+#             #
+#             #
+#  LLLLLLLLL  #
+#  LLLLLLLLL  #
+#  LL     LL  #
+#  LL X X LL  #
+#  LL     LL  #
+#  LL X X LL  #
+#  LL     LL  #
+#  LLLLLLLLL  #
+#  LLLLLLLLL  #
+#             #
+#             #
+###############

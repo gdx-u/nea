@@ -28,14 +28,8 @@
 
     width: var(--tile-size);
     height: var(--tile-size);
-}
 
-.background {
-    display: block;
-    position: absolute;
-
-    background-color: #ddd;
-    z-index: -100;
+    will-change: transform;
 }
 
 #fps {

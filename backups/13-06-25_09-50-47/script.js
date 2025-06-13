@@ -28,9 +28,7 @@ class Tile {
         this.y = y;
         this.information = information;
         this.colours = {
-            // "wall": "#949396" // Taupe gray if you're interested
-            "wall": "#414a4c",
-            "lava": "#ff7f27"
+            "wall": "#949396" // Taupe gray if you're interested
         }
 
         this.el = create_tile_div(this.x, this.y, {
@@ -121,8 +119,6 @@ class Player {
     }
 
     tick() {
-        if (player_lock) return;
-
         let dt;
         let relevant_tiles = get_relevant_tiles(
             this.center_x, this.center_y, 100,
@@ -161,7 +157,7 @@ class Player {
         ) v *= 1 / Math.SQRT2;
 
         if (held_keys.includes(" ") && this.keys[" "].held_for == 1 && this.base_speed == 1) {
-            this.base_speed = 3.4;
+            this.base_speed = 3;
             this.dashing = true;
         } else {
             this.base_speed = Math.max(1, this.base_speed * 0.97);
@@ -189,7 +185,6 @@ class Player {
         if (x_movement) {
             for (let tile of relevant_tiles) {
                 let changed = false;
-                let exit = false;
                 while (collides(
                     this.tlx, 
                     this.tly,
@@ -199,24 +194,9 @@ class Player {
                     tile.y * tile_size - player_y,
                     tile_size,
                     tile_size
-                ) && !exit) {
-                    switch (tile.information.type) {
-                        case "wall":
-                            player_x -= Math.sign(x_movement);
-                            changed = true;
-                            break;
-                        case "lava":
-                            if (this.dashing) {
-                                changed = true;
-                                exit = true;
-                                break;
-                            } else {
-                                this.damage();
-                                changed = true;
-                                exit = true;
-                            }
-                            break;
-                    }
+                )) {
+                    player_x -= Math.sign(x_movement);
+                    changed = true;
                 }
                 if (changed) break;
             }
@@ -235,7 +215,6 @@ class Player {
         if (y_movement) {
             for (let tile of relevant_tiles) {
                 let changed = false;
-                let exit = false;
                 while (collides(
                     this.tlx, 
                     this.tly,
@@ -245,25 +224,9 @@ class Player {
                     tile.y * tile_size - player_y,
                     tile_size,
                     tile_size
-                ) && !exit) {
-                    switch (tile.information.type) {
-                        case "wall":
-                            player_y -= Math.sign(y_movement);
-                            changed = true;
-                            break;
-                        case "lava":
-                            if (this.dashing) {
-                                changed = true;
-                                exit = true;
-                                break;
-                            } else {
-                                this.damage();
-                                changed = true;
-                                exit = true;
-                            }
-                            break;
-                    }
-                    
+                )) {
+                    player_y -= Math.sign(y_movement);
+                    changed = true;
                 }
                 if (changed) break;
             }
@@ -282,7 +245,7 @@ class Player {
         const angle = Math.atan2(dy, dx);
         const angleDeg = angle * 180 / Math.PI;
 
-        const radius = (this.bound.width / 2) + 15; // adjust “20” as needed
+        const radius = (this.bound.width / 2) + 10; // adjust “20” as needed
 
         const indicator_bound = this.indicator.getBoundingClientRect();
         const iw = indicator_bound.width / 2;
@@ -300,10 +263,6 @@ class Player {
 
         // this.indicator.style.transform = `rotate(${angleDeg}deg)`;
 
-    }
-
-    damage() {
-        document.body.style.backgroundColor = "red";
     }
 }
 
@@ -529,7 +488,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 
     let block_list = get_door_tiles(width, height, x_mid, y_mid, entrance);    
 
-    let num_exits = random(3, 3);
+    let num_exits = random(1, 3);
     let available_exits = directions.slice();
     available_exits = remove(available_exits, entrance);
 
@@ -554,36 +513,20 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 
     console.log(entrance, num_exits, exits);
 
-    let background_el = document.createElement("div");
-    background_el.className = "background";
-    background_el.style.left = `${-draw_x + or_x * tile_size - player_x}px`;
-    background_el.style.top = `${-draw_y + or_y * tile_size - player_y}px`;
-    background_el.style.width = `${width * tile_size}px`;
-    background_el.style.height = `${height * tile_size}px`;
-    document.getElementById("tiles").appendChild(background_el);
     for (let char of text) {
         if (char == "\n") {
             y += 1;
             x = off_x - 1;
-        } else if (!includes(block_list, [x - off_x, y - off_y])) {
-            switch (char) {
-                case "#":
-                    let tile = new Tile(x, y, {
-                        type: "wall"
-                    });
-                    break;
-                case "L":
-                    let lava = new Tile(x, y, {
-                        type: "lava"
-                    });
-            }
+        } else if (char == "#") {
             // if (!block_list.includes([x, y])) {
-            
+            if (!includes(block_list, [x - off_x, y - off_y])) {
+                let tile = new Tile(x, y, {
+                    type: "wall"
+                });
+            }
         }
         x++;
     }
-
-    if (room_id == 0) player_lock = false;
 
 
     return true;
@@ -597,7 +540,5 @@ entities.push(player);
 
 load_room(player.center_x / tile_size, player.center_y / tile_size, 0);
 
-const max_depth = 5;
-const num_rooms = 2;
-
-let player_lock = true;
+const max_depth = 8;
+const num_rooms = 3;
