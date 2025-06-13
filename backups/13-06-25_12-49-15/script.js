@@ -219,6 +219,10 @@ class Player {
                     tile_size
                 ) && !exit) {
                     switch (tile.information.type) {
+                        case "wall":
+                            player_x -= Math.sign(x_movement);
+                            changed = true;
+                            break;
                         case "lava":
                             if (this.dashing) {
                                 changed = true;
@@ -230,16 +234,6 @@ class Player {
                                 exit = true;
                             }
                             break;
-                        default:
-                            if (tile_properties[tile.information.type].solid) {
-                                player_x -= Math.sign(x_movement);
-                                changed = true;
-                                break;
-                            } else {
-                                changed = true;
-                                exit = true;
-                                break;
-                            }
                     }
                 }
                 if (changed) break;
@@ -271,6 +265,10 @@ class Player {
                     tile_size
                 ) && !exit) {
                     switch (tile.information.type) {
+                        case "wall":
+                            player_y -= Math.sign(y_movement);
+                            changed = true;
+                            break;
                         case "lava":
                             if (this.dashing) {
                                 changed = true;
@@ -282,16 +280,6 @@ class Player {
                                 exit = true;
                             }
                             break;
-                        default:
-                            if (tile_properties[tile.information.type].solid) {
-                                player_y -= Math.sign(y_movement);
-                                changed = true;
-                                break;
-                            } else {
-                                changed = true;
-                                exit = true;
-                                break;
-                            }
                     }
                     
                 }
@@ -536,6 +524,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
     let specials = "!\"$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
     let [text, metadata] = full_text.split("META:");
     text = text.trim();
+    // console.log(text, metadata);
     let colours = {}
     if (metadata) {
         metadata = metadata.trim();
@@ -550,6 +539,8 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
             };
             colours[symbol] = colour.trim();
         }
+
+        console.log(colours);
     }
     
     let width = text.split("\n")[0].trim().length;
@@ -637,9 +628,10 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                 default:
                     if (specials.includes(char)) {
                         let special = new Tile(x, y, {
-                            type: `special_${char}`,
+                            type: `special_${colours[char]}`,
                             colour: colours[char]
                         });
+                        console.log(char, colours[char])
                     } else if (char !== " ") {
                         console.log("what the fuck", char);
                     }
@@ -665,7 +657,7 @@ entities.push(player);
 
 load_room(player.center_x / tile_size, player.center_y / tile_size, 0);
 
-const max_depth = 10;
-const num_rooms = 1;
+const max_depth = 1;
+const num_rooms = 3;
 
 let player_lock = true;

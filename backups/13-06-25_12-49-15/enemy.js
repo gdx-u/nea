@@ -32,8 +32,6 @@ class Bullet {
     tick() {
         this.lifetime++;
 
-        this.el.style.opacity = `${1 - (this.distance_traveled / this.range)}`;
-
         this.distance_traveled = Math.hypot(this.ox - this.x, this.oy - this.y);
         if (this.lifetime > 500 || this.distance_traveled > this.range) {
             window.clearInterval(this.tick_interval);

@@ -3,6 +3,14 @@ from PIL import Image
 im = Image.open("in.png").convert("RGB")
 width, height = im.size
 
+symbols = "!\"$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+symbol_id = 0
+colours = {}
+
+def rgb_to_hex(rgb):
+    r, g, b = rgb
+    return "#" + hex(r)[2:] + hex(g)[2:] + hex(b)[2:]
+
 out = ""
 for i, px in enumerate(im.getdata()):
     match px:
@@ -17,8 +25,14 @@ for i, px in enumerate(im.getdata()):
         case (255, 255, 255):
             out += " "
         case _:
-            print(px)
-            out += " "
+            if px in colours:
+                out += colours[px]
+            else:
+                out += symbols[symbol_id]
+                colours[px] = symbols[symbol_id]
+                symbol_id += 1
+                print(colours)
+
     # if sum(px) < 100: out += "#"
     # else: out += " "
 
@@ -27,3 +41,6 @@ for i, px in enumerate(im.getdata()):
 
 with open("out.txt", "w") as f:
     f.write(out)
+    f.write("META:\n")
+    for colour, symbol in colours.items():
+        f.write(f"{symbol} {rgb_to_hex(colour)}\n")

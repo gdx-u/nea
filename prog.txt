@@ -81,3 +81,19 @@
                  - enemy: 99
                  - TOTAL: 891
 
+13/06/25 12:49:15: added custom colours but collision is broken -- TODO
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 663
+                 - style: 102
+                 - enemy: 105
+                 - TOTAL: 972
+
+13/06/25 13:06:29: added working un-solid
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 671
+                 - style: 102
+                 - enemy: 107
+                 - TOTAL: 982
+
