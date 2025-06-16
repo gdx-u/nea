@@ -73,14 +73,3 @@ function remove(arr, val, num) {
 
     return new_;
 }
-
-function weighted_random(weights) {
-    let total = Object.values(weights).reduce((curr, val) => curr + val, 0);
-    let val = random(1, total);
-    for (let [k, v] of Object.entries(weights)) {
-        val -= v;
-        if (val <= 0) return k;
-    }
-
-    return k;
-}

@@ -2,31 +2,11 @@
     --tile-size: 0px; /* This will be changed in the JS. */
     --player-size: 0px; /* ^^^ */
     --offset: 0px;
-
-    --dash-reduce: 2px;
-}
-
-body {
-    width: 100vw;
-    height: 100vh;
 }
 
 * {
     overflow: hidden;
-    font-family: 'Courier New'; /* TODO: change */
-    user-select: none;
-    margin: 0;
-    padding: 0;
-}
-
-#tiles {
-    position: absolute;
-    display: block;
-    width: 10001vw;
-    height: 10001vh;
-
-    left: -5000vw;
-    top: -5000vh;
+    font-family: 'Lucida Sans MS'; /* TODO: change */
 }
 
 .tile {
@@ -35,50 +15,6 @@ body {
 
     width: var(--tile-size);
     height: var(--tile-size);
-
-    z-index: 100;
-}
-
-.background {
-    display: block;
-    position: absolute;
-
-    background-color: #ddd;
-    z-index: -100;
-}
-
-#fps {
-    position: absolute;
-    display: block;
-    top: 40px;
-    left: 40px;
-}
-
-.bullet {
-    display: block;
-    position: absolute;
-
-    width: calc(var(--tile-size) / 4);
-    height: calc(var(--tile-size) / 4);
-
-    border-radius: calc(var(--tile-size) / 4);
-
-    background-color: red;
-    z-index: 10000;
-}
-
-.enemy {
-    display: block;
-    position: absolute;
-
-    width: var(--tile-size);
-    height: var(--tile-size);
-
-    z-index: 10000;
-}
-
-.turret {
-    transition: transform 400ms ease-out;
 }
 
 .player {
@@ -91,19 +27,10 @@ body {
     left: calc(100vw / 2 - var(--player-size) / 2 - var(--offset-x));
     top: calc(100vh / 2 - var(--player-size) / 2 - var(--offset-y));
 
-    background-color: black;
+    background: black;
     border-radius: var(--player-size);
 
     z-index: 1000;
-
-    transition: width 200ms ease-in-out, height 200ms ease-in-out, transform 200ms ease-in-out;
-}
-
-.player.dashing {
-    width: calc(var(--player-size) - var(--dash-reduce));
-    height: calc(var(--player-size) - var(--dash-reduce));
-    transform: translate(calc(var(--dash-reduce) / 2), calc(var(--dash-reduce) / 2));
-    transition: width 75ms ease-in-out, height 75ms ease-in-out, transform 75ms ease-in-out;
 }
 
 .indicator {

@@ -24,8 +24,7 @@ with open("prog.txt", "a") as f:
         "auxiliary.js",
         "index.html",
         "script.js",
-        "style.css",
-        "enemy.js"
+        "style.css"
     ]:
         read_file = open(file, "r", encoding="utf-8").read()
 
