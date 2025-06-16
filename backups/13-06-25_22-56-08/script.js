@@ -5,6 +5,7 @@ let frame = 0;
 // const slowdown = 60 / fps;
 const slowdown = 0.6;
 
+let entities = [];
 let fps_history = [];
 let prev_tick;
 
@@ -633,6 +634,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                     });
                     break;
                 case "T":
+                    console.log("created turret");
                     let turret = new Enemy(x, y, {
                         type: "turret"
                     });
@@ -644,7 +646,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                             colour: colours[char]
                         });
                     } else if (char !== " ") {
-                        // what the fuckkkkk
+                        console.log("what the fuck", char);
                     }
                     break;
             }
@@ -663,6 +665,9 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 // --- === ≡≡≡ MAIN BODY ≡≡≡ === --- //
 
 let player = new Player();
+entities.push(player);
+
+
 
 const max_depth = 3;
 const num_rooms = 3;

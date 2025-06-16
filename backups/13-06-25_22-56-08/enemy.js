@@ -29,11 +29,6 @@ class Bullet {
         this.range = range;
     }
 
-    remove() {
-        window.clearInterval(this.tick_interval);
-        this.el.parentElement?.removeChild(this.el);
-    }
-
     tick() {
         this.lifetime++;
 
@@ -41,8 +36,8 @@ class Bullet {
 
         this.distance_traveled = Math.hypot(this.ox - this.x, this.oy - this.y);
         if (this.lifetime > 500 || this.distance_traveled > this.range) {
-            this.remove();
-            return;
+            window.clearInterval(this.tick_interval);
+            this.el.parentElement?.removeChild(this.el);
         }
 
         this.x += this.dx;
@@ -54,7 +49,7 @@ class Bullet {
         this.el.style.left = `${vis_x}px`;
         this.el.style.top = `${vis_y}px`;
 
-        for (let entity of Enemy.enemies.concat(player)) {
+        for (let entity of entities) {
             if (entity.type == this.origin) continue; // Friendly fire disabled
 
             if (entity.type == "player") {
@@ -62,16 +57,14 @@ class Bullet {
                     vis_x, vis_y, tile_size / 4, tile_size / 4,
                     entity.tlx, entity.tly, player_size, player_size
                 )) {
-                    entity.damage(this.origin);
-                    this.remove();
+                    entity.damage();
                 }
             } else {
                 if (collides(
                     vis_x, vis_y, tile_size / 4, tile_size / 4,
-                    entity.x * tile_size - player_x, entity.y * tile_size - player_y, tile_size, tile_size
+                    entity.x, entity.y, tile_size, tile_size
                 )) {
-                    entity.damage(this.origin);
-                    this.remove();
+                    entity.damage(this);
                 }
             }
         }
@@ -101,8 +94,8 @@ document.onclick = e => {
 
 
 
+
 class Enemy {
-    static enemies = [];
     constructor(x, y, information) {
         this.x = x;
         this.y = y;
@@ -122,9 +115,6 @@ class Enemy {
         this.el.style.background = this.colours[this.information.type];
         this.tick_interval = window.setInterval(() => {this.tick()}, this.tick_times[this.information.type]);
 
-
-        this.type = "enemy"; 
-        Enemy.enemies.push(this);
         document.getElementById("tiles").appendChild(this.el);
     }
 
@@ -156,15 +146,9 @@ class Enemy {
                     y + Math.sin(angle - Math.PI / 2) * tile_size,
                     angle - Math.PI / 2,
                     4,
-                    "enemy",
+                    "turret",
                     400
                 );
         }
-    }
-
-    damage() {
-        this.el.parentElement.removeChild(this.el);
-        Enemy.enemies = remove(Enemy.enemies, this); 
-        window.clearInterval(this.tick_interval);
     }
 }

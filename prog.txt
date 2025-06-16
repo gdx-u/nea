@@ -97,3 +97,19 @@
                  - enemy: 107
                  - TOTAL: 982
 
+13/06/25 22:56:08: added turrets!!
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 676
+                 - style: 117
+                 - enemy: 154
+                 - TOTAL: 1049
+
+14/06/25 09:56:52: added full support for damage origins + other bugfixes
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 671
+                 - style: 122
+                 - enemy: 170
+                 - TOTAL: 1065
+

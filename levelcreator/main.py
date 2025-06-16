@@ -9,7 +9,7 @@ colours = {}
 
 def rgb_to_hex(rgb):
     r, g, b = rgb
-    return "#" + hex(r)[2:] + hex(g)[2:] + hex(b)[2:]
+    return "#" + hex(r)[2:].rjust(2, "0") + hex(g)[2:].rjust(2, "0") + hex(b)[2:].rjust(2, "0")
 
 out = ""
 for i, px in enumerate(im.getdata()):
@@ -24,6 +24,8 @@ for i, px in enumerate(im.getdata()):
             out += "L"
         case (255, 255, 255):
             out += " "
+        case (195, 195, 195):
+            out += "T"
         case _:
             if px in colours:
                 out += colours[px]
