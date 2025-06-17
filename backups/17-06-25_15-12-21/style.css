@@ -43,8 +43,6 @@ body.flash {
     height: var(--tile-size);
 
     z-index: 100;
-
-    transition: opacity 400ms ease-in-out;
 }
 
 .background {
@@ -135,10 +133,6 @@ body.flash {
     position: absolute;
     display: block;
     z-index: 100000;
-}
-
-.tile.open {
-    opacity: 0;
 }
 
 /* .entrance_gate {

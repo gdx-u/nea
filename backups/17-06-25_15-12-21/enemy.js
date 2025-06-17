@@ -84,9 +84,9 @@ class Bullet {
         }
 
         for (let tile of Tile.tiles) {
-            if (tile_properties[tile.information.type].solid && tile.active && collides(
+            if (tile_properties[tile.information.type].solid && collides(
                 vis_x, vis_y, tile_size / 8, tile_size / 8,
-                tile.x * tile_size - player_x, tile.y * tile_size - player_y, tile.width, tile.height
+                tile.x * tile_size - player_x, tile.y * tile_size - player_y, tile_size, tile_size
             )) {
                 window.clearInterval(this.tick_interval);
                 this.el.parentElement?.removeChild(this.el);
@@ -102,7 +102,7 @@ document.onclick = e => {
         player.indicator_angle,
         4,
         "player",
-        200
+        400
     );
 }
 

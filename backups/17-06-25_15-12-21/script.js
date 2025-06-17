@@ -1,6 +1,6 @@
 let cached_files = {};
 
-const maze_gen_test = false;
+const maze_gen_test = true;
 
 let tile_size = 32;
 let max_depth = 3;
@@ -64,16 +64,13 @@ class Tile {
         this.el = create_tile_div(this.x, this.y, {
             colour: this.information.colour || this.colours[this.information.type]
         });
-
-        this.el.style.width = `${this.width}px`;
-        this.el.style.height = `${this.height}px`;
         if (this.append) {
             document.getElementById("tiles").appendChild(this.el);
             Tile.tiles.push(this);
         }
 
         this.type = "tile";
-        this.active = true;
+
     }
 
     tick() {
@@ -159,24 +156,9 @@ class Player {
         
         let dt;
         let relevant_tiles = get_relevant_tiles(
-            this.center_x, this.center_y, 125,
+            this.center_x, this.center_y, 100,
             (x, px, y, py) => {return [x * tile_size - player_x - px, y * tile_size - player_y - py]}
         );
-
-        for (let tile of relevant_tiles) {
-            if (tile.information.is_gate) {
-                tile.active = false;
-                tile.el.classList.add("open");
-                if (!tile.information.timeout_active) {
-                    tile.information.timeout_active = true;
-                    window.setTimeout(() => {
-                        tile.active = true;
-                        tile.el.classList.remove("open");
-                        tile.information.timeout_active = false;
-                    }, 1000);
-                }
-            }
-        }
         // let relevant_tiles = [];
         
         if (!prev_tick) {
@@ -289,7 +271,7 @@ class Player {
                             }
                             break;
                         default:
-                            if (tile_properties[tile.information.type].solid && tile.active) {
+                            if (tile_properties[tile.information.type].solid) {
                                 player_x -= Math.sign(x_movement);
                                 changed = true;
                                 break;
@@ -339,7 +321,7 @@ class Player {
                             }
                             break;
                         default:
-                            if (tile_properties[tile.information.type].solid && tile.active) {
+                            if (tile_properties[tile.information.type].solid) {
                                 player_y -= Math.sign(y_movement);
                                 changed = true;
                                 break;
@@ -434,7 +416,7 @@ class Player {
                                 }
                                 break;
                             default:
-                                if (tile_properties[tile.information.type].solid && tile.active) {
+                                if (tile_properties[tile.information.type].solid) {
                                     player_x -= Math.sign(x);
                                     changed = true;
                                     break;
@@ -476,7 +458,7 @@ class Player {
                                 }
                                 break;
                             default:
-                                if (tile_properties[tile.information.type].solid && tile.active) {
+                                if (tile_properties[tile.information.type].solid) {
                                     player_y -= Math.sign(y);
                                     changed = true;
                                     break;
@@ -844,13 +826,14 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                 break;
         }
 
-        // document.getElementById("tiles").append(gate);
-        let _ = new Tile(gx, gy, {
-            type: "wall",
-            width: gw,
-            height: gh,
-            is_gate: true
-        });
+        document.getElementById("tiles").append(gate);
+        Tile.tiles.push(
+            new Tile(gx, gy, {
+                type: "wall",
+                width: gw,
+                height: gh
+            })
+        )
     }
 
     let block_list = get_door_tiles(width, height, x_mid, y_mid, entrance);    
@@ -877,8 +860,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                 if (res == true) {
                     block_list = block_list.concat(removed_tiles);
                     let gate = document.createElement("div");
-                    gate.className = "in_gate";
-                    let gx, gy, gw, gh;
+                    gate.className = "in_gate"
                     switch (exit) {
                         case "left":
                         case "right":
@@ -886,11 +868,6 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                             gate.style.top = `${(start_y - (door_width - 1) / 2) * tile_size - draw_y}px`;
                             gate.style.width = `${tile_size}px`;
                             gate.style.height = `${door_width * tile_size}px`;
-
-                            gx = start_x;
-                            gy = start_y - (door_width - 1) / 2;
-                            gw = 1;
-                            gh = door_width;
                             break;
                         
                         case "top":
@@ -899,20 +876,9 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                             gate.style.top = `${start_y * tile_size - draw_y}px`;
                             gate.style.width = `${door_width * tile_size}px`;
                             gate.style.height = `${tile_size}px`;
-                            
-                            gx = start_x - (door_width - 1) / 2;
-                            gy = start_y;
-                            gw = door_width;
-                            gh = 1;
                             break;
                     }
-                    // document.getElementById("tiles").append(gate);
-                    let _ = new Tile(gx, gy, {
-                        type: "wall",
-                        width: gw,
-                        height: gh,
-                        is_gate: true
-                    });
+                    document.getElementById("tiles").append(gate);
                             
                     for (let tile_ of tiles_) tile_.append_el();
                 }

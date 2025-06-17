@@ -137,3 +137,19 @@
                  - enemy: 229
                  - TOTAL: 1364
 
+17/06/25 15:12:21: check
+                 - auxiliary: 119
+                 - index: 16
+                 - script: 966
+                 - style: 143
+                 - enemy: 236
+                 - TOTAL: 1480
+
+17/06/25 15:32:41: added gates!!!
+                 - auxiliary: 119
+                 - index: 16
+                 - script: 1000
+                 - style: 149
+                 - enemy: 236
+                 - TOTAL: 1520
+
