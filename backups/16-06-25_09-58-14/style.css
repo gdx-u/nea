@@ -9,12 +9,6 @@
 body {
     width: 100vw;
     height: 100vh;
-    transition: background-color 1s cubic-bezier(.56,0,.05,1);
-}
-
-body.flash {
-    background-color: red;
-    transition: background-colour 50ms cubic-bezier(.56,0,.05,1);
 }
 
 * {

@@ -25,3 +25,115 @@
                  - script: 476
                  - style: 49
                  - TOTAL: 613
+                 
+12/06/25 19:59:59: about to add enemies
+                 - auxiliary: 86
+                 - index: 13
+                 - script: 479
+                 - style: 49
+                 - TOTAL: 627
+
+12/06/25 22:24:27: added bullets & increased fps (fix slowdown)
+                 - auxiliary: 86
+                 - index: 15
+                 - script: 512
+                 - style: 67
+                 - enemy: 99
+                 - TOTAL: 779
+
+12/06/25 22:27:44: added delta time
+                 - auxiliary: 86
+                 - index: 15
+                 - script: 517
+                 - style: 67
+                 - enemy: 99
+                 - TOTAL: 784
+
+12/06/25 23:11:38: changed to using transform translate
+                 - auxiliary: 86
+                 - index: 15
+                 - script: 530
+                 - style: 69
+                 - enemy: 99
+                 - TOTAL: 799
+
+13/06/25 09:50:47: added tile div for performance increase
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 544
+                 - style: 81
+                 - enemy: 99
+                 - TOTAL: 826
+
+13/06/25 10:18:11: added background
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 552
+                 - style: 87
+                 - enemy: 99
+                 - TOTAL: 840
+
+13/06/25 10:45:03: added lava
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 603
+                 - style: 87
+                 - enemy: 99
+                 - TOTAL: 891
+
+13/06/25 12:49:15: added custom colours but collision is broken -- TODO
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 663
+                 - style: 102
+                 - enemy: 105
+                 - TOTAL: 972
+
+13/06/25 13:06:29: added working un-solid
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 671
+                 - style: 102
+                 - enemy: 107
+                 - TOTAL: 982
+
+13/06/25 22:56:08: added turrets!!
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 676
+                 - style: 117
+                 - enemy: 154
+                 - TOTAL: 1049
+
+14/06/25 09:56:52: added full support for damage origins + other bugfixes
+                 - auxiliary: 86
+                 - index: 16
+                 - script: 671
+                 - style: 122
+                 - enemy: 170
+                 - TOTAL: 1065
+
+16/06/25 09:47:12: added ghosts
+                 - auxiliary: 119
+                 - index: 16
+                 - script: 684
+                 - style: 122
+                 - enemy: 220
+                 - TOTAL: 1161
+
+16/06/25 09:58:14: bugfixes
+                 - auxiliary: 119
+                 - index: 16
+                 - script: 688
+                 - style: 122
+                 - enemy: 220
+                 - TOTAL: 1165
+                 
+17/06/25 10:34:07: added boom
+                 - auxiliary: 119
+                 - index: 16
+                 - script: 872
+                 - style: 128
+                 - enemy: 229
+                 - TOTAL: 1364
+

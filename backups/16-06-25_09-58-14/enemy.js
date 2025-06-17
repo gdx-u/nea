@@ -1,8 +1,3 @@
-const random_enemies = [
-    "ghost",
-    "juggernaut"
-];
-
 class Bullet {
     constructor(x, y, angle, speed, origin, range) {
         this.x = x;
@@ -124,12 +119,6 @@ class Enemy {
             "ghost": "#ccc"
         };
 
-        this.ranges = {
-            "turret": 400,
-            "ghost": 600,
-            "juggernaut": 1000
-        };
-
         this.el = document.createElement("div");
         this.el.className = `${this.information.type} enemy`;
         this.el.style.background = this.colours[this.information.type];
@@ -146,7 +135,6 @@ class Enemy {
     remove() {
         window.clearInterval(this.tick_interval);
         this.el.parentElement?.removeChild(this.el);
-        Enemy.enemies = remove(Enemy.enemies, this);
         this.removed = true;
     }
 
@@ -167,13 +155,16 @@ class Enemy {
         let dx = px - x;
         let dy = y - py;
 
-        if (Math.hypot(dx, dy) > this.ranges[this.information.type]) return; // Stop execution if player out of range
-
-        if (get_room(this) !== get_player_room()) return; // Stop execution if not in the same room as player
+        if (get_room(this) !== get_player_room()) return;
+        else {
+            console.log(get_room(this), get_player_room());
+        }
 
         switch (this.information.type) {
             case "turret":
                 // Calculate angle from turret to player
+                if (Math.hypot(dx, dy) > 400) return;
+
                 let angle = Math.atan2(dx, dy);
 
                 this.el.style.transform = `rotate(${angle}rad)`;
@@ -193,6 +184,8 @@ class Enemy {
                 break;
 
             case "ghost":
+                if (Math.hypot(dx, dy) > 600) return;
+
                 let step_x = dx / 50 / tile_size + random(1, 10) / 500;
                 let step_y = -dy / 50 / tile_size + random(1, 10) / 500;
 
@@ -207,15 +200,13 @@ class Enemy {
 
                     if (collides(x, y, tile_size, tile_size, px, py, player_size, player_size)) {
                         if (player.damage(this)) {
+                            console.log(this.removed);
                             this.remove();
                             return;
                         }
                     }
                 }
                 break;
-
-            case "juggernaut":
-                
 
         }
     }

@@ -1,21 +1,3 @@
-let cached_files = {};
-
-const maze_gen_test = false;
-
-let tile_size = 32;
-let max_depth = 3;
-let num_rooms = 3;
-let sleep_time = 1;
-
-if (maze_gen_test) {
-    tile_size = 1;
-    max_depth = 50;
-    num_rooms = 1;
-    sleep_time = 1;
-}
-
-
-
 const fps = 144;             // Frames per second
 const mspf = 1000 / fps;    // Milliseconds per frame
 let frame = 0;
@@ -148,19 +130,18 @@ class Player {
         this.tlx = bound.left - offset_x;
         this.tly = bound.top - offset_y;
 
-        this.invulnerable = false;
-
     }
 
     tick() {
-        
+        if (player_lock) return;
+
         let dt;
         let relevant_tiles = get_relevant_tiles(
             this.center_x, this.center_y, 100,
             (x, px, y, py) => {return [x * tile_size - player_x - px, y * tile_size - player_y - py]}
         );
         // let relevant_tiles = [];
-        
+
         if (!prev_tick) {
             prev_tick = Date.now()
             dt = 1;
@@ -169,35 +150,31 @@ class Player {
             let elapsed = curr - prev_tick;
             prev_tick = curr;
             let curr_fps = 1000 / elapsed;
-            if (curr_fps != Infinity) {
-                curr_fps = Math.round(curr_fps);
-                fps_history.push(curr_fps);
-                if (fps_history.length > 500) fps_history = fps_history.slice(1);
-                
-                let fps_value = Math.round(fps_history.reduce((cur, val) => cur + val, 0) / fps_history.length);
-                
-                document.getElementById("fps").innerText = `${fps_value}FPS`;
-                
-            }
+            curr_fps = Math.round(curr_fps);
+            fps_history.push(curr_fps);
+            if (fps_history.length > 50) fps_history = fps_history.slice(1);
+
+            document.getElementById("fps").innerText = `${Math.round(fps_history.reduce((cur, val) => cur + val, 0) / fps_history.length)}FPS`;
+
             dt = elapsed / mspf;
         }
-        
+
         frame++;
-        
+
         // Update position
-        
+
         for (const key of Object.keys(this.keys)) {
             this.keys[key].held_for++;
         }
-        
+
         let held_keys = Object.keys(this.keys);
-        
+
         let v = slowdown * dt;
         if (
             (held_keys.includes("a") || held_keys.includes("d")) &&
             (held_keys.includes("w") || held_keys.includes("s"))
-            ) v *= 1 / Math.SQRT2;
-            
+        ) v *= 1 / Math.SQRT2;
+
         if (held_keys.includes(" ") && this.keys[" "].held_for == 1 && this.base_speed == 1) {
             this.base_speed = 3.6;
             this.dashing = true;
@@ -209,12 +186,11 @@ class Player {
                 this.el.classList.remove("dashing");
             }
         }
-        
+
         v *= this.base_speed;
-            
-        if (player_lock) v = 0;
-            // let prev_x = player_x;
-            // let prev_y = player_y;
+
+        // let prev_x = player_x;
+        // let prev_y = player_y;
 
         let x_movement = 0;
         let y_movement = 0;
@@ -230,22 +206,6 @@ class Player {
         player_x = Math.round(player_x);
         
         if (x_movement) {
-            for (let enemy of Enemy.enemies) {
-                if (collides(
-                    this.tlx,
-                    this.tly,
-                    player_size,
-                    player_size,
-                    enemy.x * tile_size - player_x,
-                    enemy.y * tile_size - player_y,
-                    tile_size,
-                    tile_size
-                )) {
-                    this.damage(enemy);
-                    enemy.remove();
-                }
-            }
-
             for (let tile of relevant_tiles) {
                 let changed = false;
                 let exit = false;
@@ -368,136 +328,10 @@ class Player {
 
     }
 
-    boom_loop(x, y) {
-        console.log(x, y);
-        player_lock = true;
-        this.invulnerable = true;
-        let interval = window.setInterval(() => {
-            x /= 1.1;
-            y /= 1.1;
-            if (Math.abs(x) + Math.abs(y) < 0.2) {
-                window.clearInterval(interval);
-                player_lock = false;
-                this.invulnerable = false;
-                return;
-            }
-
-            let relevant_tiles = get_relevant_tiles(
-                this.center_x, this.center_y, 100,
-                (x, px, y, py) => {return [x * tile_size - player_x - px, y * tile_size - player_y - py]}
-            );
-            // let relevant_tiles = [];
-            player_x += x;
-            player_x = Math.round(player_x);
-            
-            if (x) {
-                for (let tile of relevant_tiles) {
-                    let changed = false;
-                    let exit = false;
-                    while (collides(
-                        this.tlx, 
-                        this.tly,
-                        player_size,
-                        player_size, 
-                        tile.x * tile_size - player_x, 
-                        tile.y * tile_size - player_y,
-                        tile_size,
-                        tile_size
-                    ) && !exit) {
-                        switch (tile.information.type) {
-                            case "lava":
-                                if (this.dashing) {
-                                    exit = true;
-                                    break;
-                                } else {
-                                    this.damage(tile);
-                                    changed = true;
-                                    exit = true;
-                                }
-                                break;
-                            default:
-                                if (tile_properties[tile.information.type].solid) {
-                                    player_x -= Math.sign(x);
-                                    changed = true;
-                                    break;
-                                } else {
-                                    exit = true;
-                                    break;
-                                }
-                        }
-                    }
-                    if (changed) break;
-                }
-            }
-            player_y += y;
-            player_y = Math.round(player_y);
-
-            if (y) {
-                for (let tile of relevant_tiles) {
-                    let changed = false;
-                    let exit = false;
-                    while (collides(
-                        this.tlx, 
-                        this.tly,
-                        player_size,
-                        player_size, 
-                        tile.x * tile_size - player_x, 
-                        tile.y * tile_size - player_y,
-                        tile_size,
-                        tile_size
-                    ) && !exit) {
-                        switch (tile.information.type) {
-                            case "lava":
-                                if (this.dashing) {
-                                    exit = true;
-                                    break;
-                                } else {
-                                    this.damage(tile);
-                                    changed = true;
-                                    exit = true;
-                                }
-                                break;
-                            default:
-                                if (tile_properties[tile.information.type].solid) {
-                                    player_y -= Math.sign(y);
-                                    changed = true;
-                                    break;
-                                } else {
-                                    exit = true;
-                                    break;
-                                }
-                        }
-                        
-                    }
-                    if (changed) break;
-                }
-            }
-
-            // Update tiles
-
-            // for (let tile of Tile.tiles) tile.tick();
-            tile_tick();
-        
-        }, mspf);
-    }
-
     damage(origin, bypasses_dash) {
         bypasses_dash = bypasses_dash || false;
-        if (!bypasses_dash && this.dashing || this.invulnerable) return;
-        let ox = origin.x * tile_size - player_x + tile_size / 2;
-        let oy = origin.y * tile_size - player_y + tile_size / 2;
-
-        let dys = Math.sign(this.center_y - oy);
-        let dxs = Math.sign(this.center_x - ox);
-
-        console.log(origin.type);
-        if (["enemy", "bullet"].includes(origin.type)) this.boom_loop(dxs * 8, dys * 8);
-
-        document.body.classList.add("flash");
-        window.setTimeout(() => {
-            document.body.classList.remove("flash");
-        }, 10);
-
+        if (!bypasses_dash && this.dashing) return;
+        document.body.style.backgroundColor = "red";
         switch (origin.type) {
             case "tile":
                 switch (origin.information.type) {
@@ -525,6 +359,7 @@ function tile_tick() {
 
 let tile_map = {};
 let rooms = [];
+const tile_size = 32;
 const player_size = Math.floor(tile_size * 7 / 8);
 
 let player_x = 0; // Used to shift the tile grid
@@ -621,8 +456,7 @@ function create_hallway(direction, start_cx, start_cy) {
     let cy = start_cy;
     let ret = []
 
-    const hallway_length = random(5, 9);
-    // const hallway_length = 3;
+    let hallway_length = random(5, 9);
     for (let i = 0; i < hallway_length; i++) {
         ret.push(new Tile(
             cx - (active == "x" ? (door_width - 1) / 2 : 0),
@@ -701,15 +535,8 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
         room_id = 1; // Dead end room
     }
 
-    const file_name = `./rooms/${room_id}.txt`;
-    let full_text
-    if (!Object.keys(cached_files).includes(file_name)) {
-        let file = await fetch(file_name);
-        full_text = await file.text();
-        cached_files[file_name] = full_text;
-    } else {
-        full_text = cached_files[file_name];
-    }
+    let file = await fetch(`./rooms/${room_id}.txt`);
+    let full_text = await file.text();
 
     let specials = "!\"$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
     let [text, metadata] = full_text.split("META:");
@@ -736,9 +563,6 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
     let x_mid = (width - 1) / 2;
     let y_mid = (height - 1) / 2;
 
-    let or_off_x = off_x;
-    let or_off_y = off_y;
-
     [cxo, cyo] = center_room(opposites[entrance || "X"], width, height);
     off_x += cxo;
     off_y += cyo;
@@ -759,10 +583,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
             y,
             width,
             height
-        )) {
-            if (room_id == 1) return false
-            return load_room(or_off_x, or_off_y, 1, entrance, depth);
-        }
+        )) return false;
     }
 
     let or_x = x;
@@ -772,8 +593,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 
     let block_list = get_door_tiles(width, height, x_mid, y_mid, entrance);    
 
-    // let num_exits = random(1, 3);
-    num_exits = room_id !== 0 ? 3 : 4;
+    let num_exits = random(3, 3);
     let available_exits = directions.slice();
     available_exits = remove(available_exits, entrance);
 
@@ -782,34 +602,27 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
     for (let exit of exits) {
         let removed_tiles = get_door_tiles(width, height, x_mid, y_mid, exit);
         let [prop_x, prop_y, tiles_] = create_hallway(exit, removed_tiles[(door_width - 1) / 2][0] + off_x, removed_tiles[(door_width - 1) / 2][1] + off_y);
-        if (depth < max_depth && random(1, 10) !== 6) {
+        if (depth < max_depth) {
             await load_room(prop_x, prop_y, random(1, num_rooms), opposites[exit], depth + 1).then(res => {
                 if (res == true) {
                     block_list = block_list.concat(removed_tiles);
                     for (let tile_ of tiles_) tile_.append_el();
                 }
             });
-            await sleep(sleep_time);
+            await sleep(10);
         } else {
             // block_list = block_list.concat(removed_tiles);
             // for (let tile_ of tiles_) tile_.append_el();
         }
     }
 
-
-    if (maze_gen_test) {
-        let background_el = document.createElement("div");
-        background_el.className = "background";
-        background_el.style.left = `${-draw_x + or_x * tile_size - player_x}px`;
-        background_el.style.top = `${-draw_y + or_y * tile_size - player_y}px`;
-        background_el.style.width = `${width * tile_size}px`;
-        background_el.style.height = `${height * tile_size}px`;
-        let r = 255 * Math.pow(depth / max_depth, 0.3);
-        let g = 255 * Math.pow((1 - depth / max_depth), 0.3);
-
-        background_el.style.backgroundColor = `rgb(${r}, ${g}, 51)`;
-        document.getElementById("tiles").appendChild(background_el);
-    }
+    let background_el = document.createElement("div");
+    background_el.className = "background";
+    background_el.style.left = `${-draw_x + or_x * tile_size - player_x}px`;
+    background_el.style.top = `${-draw_y + or_y * tile_size - player_y}px`;
+    background_el.style.width = `${width * tile_size}px`;
+    background_el.style.height = `${height * tile_size}px`;
+    document.getElementById("tiles").appendChild(background_el);
     for (let char of text) {
         if (char == "\n") {
             y += 1;
@@ -822,19 +635,16 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
                     });
                     break;
                 case "L":
-                    if (maze_gen_test) break;
                     let lava = new Tile(x, y, {
                         type: "lava"
                     });
                     break;
                 case "T":
-                    if (maze_gen_test) break;
                     let turret = new Enemy(x, y, {
                         type: "turret"
                     });
                     break;
                 case "X":
-                    if (maze_gen_test) break;
                     let ghost = new Enemy(x, y, {
                         type: "ghost"
                     });
@@ -867,6 +677,8 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
 
 let player = new Player();
 
+const max_depth = 8;
+const num_rooms = 3;
 load_room(player.center_x / tile_size, player.center_y / tile_size, 0);
 
 let player_lock = true;
