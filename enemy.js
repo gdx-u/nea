@@ -120,8 +120,8 @@ class Enemy {
         };
 
         this.colours = {
-            "turret": "url('/img/turret.png')",
-            "ghost": "url('/img/ghost.png')"
+            "turret": "url('img/turret.png')",
+            "ghost": "url('img/ghost.png')"
         };
 
         this.ranges = {
