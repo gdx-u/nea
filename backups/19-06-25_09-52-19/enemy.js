@@ -111,18 +111,8 @@ class Bullet {
     }
 }
 
-async function reload() {
-    can_shoot = false;
-    let o_player_ammo = player_ammo;
-    for (let i = 0; i < 40 - o_player_ammo; i++) {
-        player_ammo++;
-        load_bullets();
-        await sleep(50);
-    }
-    can_shoot = true;
-}
 
-document.onclick = e => {
+document.onclick = async function (e) {
     if (player_ammo > 0 && can_shoot) {
         let bullet = new Bullet(
             player.indicator_x, 
@@ -137,15 +127,17 @@ document.onclick = e => {
     } 
     
     if (player_ammo == 0) {
-        reload();
+        can_shoot = false;
+        for (let i = 0; i < 40; i++) {
+            player_ammo++;
+            load_bullets();
+            await sleep(50);
+        }
+        can_shoot = true;
     }
 }
 
-document.onkeydown = e => {
-    if (e.key.toLowerCase() == "r") {
-        reload();
-    }
-}
+
 
 class Enemy {
     static enemies = [];

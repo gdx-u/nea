@@ -7,8 +7,6 @@ let max_depth = 3;
 let num_rooms = 3;
 let sleep_time = 1;
 
-const pxl = 1 / tile_size;
-
 if (maze_gen_test) {
     tile_size = 1;
     max_depth = 20;
@@ -68,7 +66,6 @@ class Tile {
             colour: this.information.colour || this.colours[this.information.type]
         });
 
-        if (this.width !== tile_size) console.log(this.width);
         this.el.style.width = `${this.width}px`;
         this.el.style.height = `${this.height}px`;
         for (let class_ of this.classes) {
@@ -172,25 +169,17 @@ class Player {
         for (let tile of relevant_tiles) {
             if (tile.information.is_gate) {
                 tile.active = false;
-                tile.information.become_active = false;
                 tile.el.classList.add("open");
                 if (!tile.information.timeout_active) {
                     tile.information.timeout_active = true;
-                    tile.information.active_interval = window.setInterval(() => {
-                        tile.information.become_active = true;
-                    }, 50);
+                    window.setTimeout(() => {
+                        tile.active = true;
+                        tile.el.classList.remove("open");
+                        tile.information.timeout_active = false;
+                    }, 1000);
                 }
             }
         }
-
-        for (let tile of Tile.tiles.filter(e => e.information.become_active == true)) {
-            tile.el.classList.remove("open");
-            tile.information.timeout_active = false;
-            tile.active = true;
-            tile.information.become_active = false;
-            window.clearInterval(tile.information.active_interval);
-        }
-
         // let relevant_tiles = [];
         
         if (!prev_tick) {
@@ -272,7 +261,7 @@ class Player {
                     enemy.y * tile_size - player_y,
                     tile_size,
                     tile_size
-                ) && !this.dashing) {
+                )) {
                     this.damage(enemy);
                     enemy.remove();
                 }
@@ -864,10 +853,10 @@ async function load_room(off_x, off_y, room_id, entrance, depth, from_id) {
         }
 
         // document.getElementById("tiles").append(gate);
-        let _ = new Tile(gx + (gw < gh ? 4 * pxl : 0), gy + (gw > gh ? 4 * pxl : 0), {
+        let _ = new Tile(gx, gy, {
             type: "wall",
-            width: gw - (gw < gh ? 8 * pxl : 0),
-            height: gh - (gw > gh ? 8 * pxl : 0),
+            width: gw,
+            height: gh,
             is_gate: true,
             colour: "#bbb",
             classes: ["gate", gw === door_width ? "horizontal" : "vertical"]
@@ -929,10 +918,10 @@ async function load_room(off_x, off_y, room_id, entrance, depth, from_id) {
                                 break;
                         }
                         // document.getElementById("tiles").append(gate);
-                        let _ = new Tile(gx + (gw < gh ? 4 * pxl : 0), gy + (gw > gh ? 4 * pxl : 0), {
+                        let _ = new Tile(gx, gy, {
                             type: "wall",
-                            width: gw - ((gw < gh) ? 8 * pxl : 0),
-                            height: gh - ((gw > gh) ? 8 * pxl : 0),
+                            width: gw,
+                            height: gh,
                             is_gate: true,
                             colour: "#bbb",
                             classes: ["gate", gw === door_width ? "horizontal" : "vertical"]

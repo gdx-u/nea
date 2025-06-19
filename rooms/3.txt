@@ -1,8 +1,8 @@
 #########################################
 #                                       #
 #                                       #
-#  X            LL     LL            X  #
-#            LLLLL     LLLLL            #
+#  X            LLLLLLLLL            X  #
+#            LLLLLLLLLLLLLLL            #
 #           LLLLLLLLLLLLLLLLL           #
 #         LLLLLLLLLLLLLLLLLLLLL         #
 #        LLLLLLLLLLLLLLLLLLLLLLL        #
@@ -16,11 +16,11 @@
 #   LLLLL    LLLL L   L LLLL    LLLLL   #
 #  LLLLLL   LLLLT L   L TLLLL   LLLLLL  #
 #  LLLLL    LLL   L   L   LLL    LLLLL  #
-#    LLL   LLLLLLLL   LLLLLLLL   LLL    #
-#    LLL   LLL             LLL   LLL    #
-#    LLL   LLL             LLL   LLL    #
-#    LLL   LLL             LLL   LLL    #
-#    LLL   LLLLLLLL   LLLLLLLL   LLL    #
+#  LLLLL   LLLLLLLL   LLLLLLLL   LLLLL  #
+#  LLLLL   LLL             LLL   LLLLL  #
+#  LLLLL   LLL             LLL   LLLLL  #
+#  LLLLL   LLL             LLL   LLLLL  #
+#  LLLLL   LLLLLLLL   LLLLLLLL   LLLLL  #
 #  LLLLL    LLL   L   L   LLL    LLLLL  #
 #  LLLLLL   LLLLT L   L TLLLL   LLLLLL  #
 #   LLLLL    LLLL L   L LLLLL   LLLLL   #
@@ -34,8 +34,8 @@
 #        LLLLLLLLLLLLLLLLLLLLLLL        #
 #         LLLLLLLLLLLLLLLLLLLLL         #
 #          LLLLLLLLLLLLLLLLLLL          #
-#            LLLLL     LLLLL            #
-#  X            LL     LL            X  #
+#            LLLLLLLLLLLLLLL            #
+#  X            LLLLLLLLL            X  #
 #                                       #
 #                                       #
 #########################################

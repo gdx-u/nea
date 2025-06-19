@@ -153,3 +153,27 @@
                  - enemy: 236
                  - TOTAL: 1520
 
+19/06/25 09:34:53: about to add ammo
+                 - auxiliary: 119
+                 - index: 16
+                 - script: 1014
+                 - style: 157
+                 - enemy: 242
+                 - TOTAL: 1548
+
+19/06/25 09:52:19: added ammo
+                 - auxiliary: 119
+                 - index: 23
+                 - script: 1014
+                 - style: 184
+                 - enemy: 273
+                 - TOTAL: 1613
+
+19/06/25 13:42:53: style changes & bugfixes
+                 - auxiliary: 119
+                 - index: 23
+                 - script: 1025
+                 - style: 186
+                 - enemy: 281
+                 - TOTAL: 1634
+
