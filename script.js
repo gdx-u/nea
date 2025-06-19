@@ -8,8 +8,8 @@ let num_rooms = 3;
 let sleep_time = 1;
 
 if (maze_gen_test) {
-    tile_size = 4;
-    max_depth = 4;
+    tile_size = 1;
+    max_depth = 40;
     num_rooms = 1;
     sleep_time = 1;
 }
@@ -28,7 +28,7 @@ let curr_room_id = 0;
 
 function get_relevant_tiles(x, y, range, transform) {
     transform = transform || ((a, b) => {a, b});
-    return Tile.tiles.filter(e => {return Math.hypot(...transform(e.x, x, e.y, y)) <= range});
+    return Tile.tiles.filter(e => {return Math.hypot(...transform(e, x, y)) <= range});
 }
 
 const tile_properties = {
@@ -159,8 +159,8 @@ class Player {
         
         let dt;
         let relevant_tiles = get_relevant_tiles(
-            this.center_x, this.center_y, 125,
-            (x, px, y, py) => {return [x * tile_size - player_x - px, y * tile_size - player_y - py]}
+            this.center_x, this.center_y, 140,
+            (tile, px, py) => {return [tile.x * tile_size - player_x - px + tile.width / 2, tile.y * tile_size - player_y - py + tile.height / 2]}
         );
 
         for (let tile of relevant_tiles) {
@@ -402,7 +402,7 @@ class Player {
 
             let relevant_tiles = get_relevant_tiles(
                 this.center_x, this.center_y, 100,
-                (x, px, y, py) => {return [x * tile_size - player_x - px, y * tile_size - player_y - py]}
+                (tile, px, py) => {return [tile.x * tile_size - player_x - px + tile.width / 2, tile.y * tile_size - player_y - py + tile.height / 2]}
             );
             // let relevant_tiles = [];
             player_x += x;
@@ -792,7 +792,7 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
     
     rooms.push([or_x, or_y, width, height, curr_room_id++]);
 
-    if (entrance) {
+    if (entrance && room_id !== 1) {
         let gate = document.createElement("div");
         gate.className = "entrance_gate";
         let gx, gy, gw, gh;
@@ -849,7 +849,8 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
             type: "wall",
             width: gw,
             height: gh,
-            is_gate: true
+            is_gate: true,
+            colour: "#bbb"
         });
     }
 
@@ -874,45 +875,48 @@ async function load_room(off_x, off_y, room_id, entrance, depth) {
         let [prop_x, prop_y, tiles_] = create_hallway(exit, start_x, start_y);
         if (depth < max_depth && random(1, 10) !== 6) {
             await load_room(prop_x, prop_y, random(1, num_rooms), opposites[exit], depth + 1).then(res => {
-                if (res == true) {
+                if (res) {
                     block_list = block_list.concat(removed_tiles);
-                    let gate = document.createElement("div");
-                    gate.className = "in_gate";
-                    let gx, gy, gw, gh;
-                    switch (exit) {
-                        case "left":
-                        case "right":
-                            gate.style.left = `${start_x * tile_size - draw_x}px`;
-                            gate.style.top = `${(start_y - (door_width - 1) / 2) * tile_size - draw_y}px`;
-                            gate.style.width = `${tile_size}px`;
-                            gate.style.height = `${door_width * tile_size}px`;
+                    if (room_id !== 1) {
+                        let gate = document.createElement("div");
+                        gate.className = "in_gate";
+                        let gx, gy, gw, gh;
+                        switch (exit) {
+                            case "left":
+                            case "right":
+                                gate.style.left = `${start_x * tile_size - draw_x}px`;
+                                gate.style.top = `${(start_y - (door_width - 1) / 2) * tile_size - draw_y}px`;
+                                gate.style.width = `${tile_size}px`;
+                                gate.style.height = `${door_width * tile_size}px`;
 
-                            gx = start_x;
-                            gy = start_y - (door_width - 1) / 2;
-                            gw = 1;
-                            gh = door_width;
-                            break;
-                        
-                        case "top":
-                        case "bottom":
-                            gate.style.left = `${(start_x - (door_width - 1) / 2) * tile_size - draw_x}px`;
-                            gate.style.top = `${start_y * tile_size - draw_y}px`;
-                            gate.style.width = `${door_width * tile_size}px`;
-                            gate.style.height = `${tile_size}px`;
+                                gx = start_x;
+                                gy = start_y - (door_width - 1) / 2;
+                                gw = 1;
+                                gh = door_width;
+                                break;
                             
-                            gx = start_x - (door_width - 1) / 2;
-                            gy = start_y;
-                            gw = door_width;
-                            gh = 1;
-                            break;
+                            case "top":
+                            case "bottom":
+                                gate.style.left = `${(start_x - (door_width - 1) / 2) * tile_size - draw_x}px`;
+                                gate.style.top = `${start_y * tile_size - draw_y}px`;
+                                gate.style.width = `${door_width * tile_size}px`;
+                                gate.style.height = `${tile_size}px`;
+                                
+                                gx = start_x - (door_width - 1) / 2;
+                                gy = start_y;
+                                gw = door_width;
+                                gh = 1;
+                                break;
+                        }
+                        // document.getElementById("tiles").append(gate);
+                        let _ = new Tile(gx, gy, {
+                            type: "wall",
+                            width: gw,
+                            height: gh,
+                            is_gate: true,
+                            colour: "#bbb"
+                        });
                     }
-                    // document.getElementById("tiles").append(gate);
-                    let _ = new Tile(gx, gy, {
-                        type: "wall",
-                        width: gw,
-                        height: gh,
-                        is_gate: true
-                    });
                             
                     for (let tile_ of tiles_) tile_.append_el();
                 }

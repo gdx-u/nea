@@ -44,7 +44,7 @@ body.flash {
 
     z-index: 100;
 
-    transition: opacity 400ms ease-in-out;
+    transition: opacity 200ms ease-in-out;
 }
 
 .background {
