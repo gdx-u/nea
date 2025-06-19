@@ -3,16 +3,19 @@ const random_enemies = [
     "juggernaut"
 ];
 
-let player_ammo = 40;
+let player_max_ammo = 25;
+let player_ammo = player_max_ammo;
 let can_shoot = true;
 
 function load_bullets() {
     let holder = document.getElementById("ammo_container");
     holder.innerHTML = "";
+    let bullet_width = Math.min((window.innerWidth * 0.2 - 20) / (player_max_ammo) - 3, 20);
     for (let i = 0; i < player_ammo; i++) {
         let bullet = document.createElement("div");
         bullet.className = "bullet-gui";
-        bullet.style.left = `${9 * i + 16}px`;
+        bullet.style.left = `${(3 + bullet_width) * i + 16}px`;
+        bullet.style.width = `${bullet_width}px`;
         holder.appendChild(bullet);
     };
 }
@@ -114,7 +117,7 @@ class Bullet {
 async function reload() {
     can_shoot = false;
     let o_player_ammo = player_ammo;
-    for (let i = 0; i < 40 - o_player_ammo; i++) {
+    for (let i = 0; i < player_max_ammo - o_player_ammo; i++) {
         player_ammo++;
         load_bullets();
         await sleep(50);

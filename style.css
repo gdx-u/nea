@@ -163,7 +163,8 @@ body.flash {
     left: 75vw;
     height: 10vh;
     top: 85vh;
-    /* border: 4px solid red; */
+    border: 8px solid #e0e0e0;
+    /* box-sizing:; */
     border-radius: 10px;
     background: #eee;
     z-index: 1000000;
@@ -181,6 +182,7 @@ body.flash {
     /* border: 2px solid blue; */
     border-radius: 4px 4px 0 0;
     z-index: 1000000;
-    background: linear-gradient(rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 10%, rgba(74, 74, 74, 1) 10%);
+    background: linear-gradient(#895C2B 0%, #895C2B 10%, #928929 10%);
+    /* background: linear-gradient(rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 10%, rgba(74, 74, 74, 1) 10%); */
     /* box-shadow: 2px 2px 3px 0px rgba(0,255,0,0.75); */
 }

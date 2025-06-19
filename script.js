@@ -3,7 +3,7 @@ let cached_files = {};
 const maze_gen_test = false;
 
 let tile_size = 32;
-let max_depth = 3;
+let max_depth = 4;
 let num_rooms = 3;
 let sleep_time = 1;
 

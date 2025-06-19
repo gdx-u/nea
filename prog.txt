@@ -177,3 +177,11 @@
                  - enemy: 281
                  - TOTAL: 1634
 
+19/06/25 15:07:01: line check
+                 - auxiliary: 119
+                 - index: 23
+                 - script: 1025
+                 - style: 186
+                 - enemy: 284
+                 - TOTAL: 1637
+
