@@ -6,7 +6,6 @@ const random_enemies = [
 let player_max_ammo = 20;
 let player_ammo = player_max_ammo;
 let can_shoot = true;
-let cooldown = 100;
 
 let reload_time = 1000;
 
@@ -28,9 +27,6 @@ init_bullets();
 function load_bullets() {
     let holder = document.getElementById("ammo_container");
     document.getElementById("ammo").innerText = `${player_ammo} / ${player_max_ammo}`;
-    if (player_ammo < 10) {
-        document.getElementById("ammo").innerHTML = "&nbsp;" + document.getElementById("ammo").innerHTML;
-    }
     // holder.innerHTML = "";
     // let bullet_width = Math.min((window.innerWidth * 0.2 - 20) / (player_max_ammo) - 3, 20);
     [...holder.children].forEach(e => e.classList.add("hidden"));
@@ -173,7 +169,7 @@ document.onclick = e => {
         can_shoot = false;
         window.setTimeout(() => {
             can_shoot = true;
-        }, cooldown);
+        }, 200);
     } 
     
 }

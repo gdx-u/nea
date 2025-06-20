@@ -185,3 +185,27 @@
                  - enemy: 284
                  - TOTAL: 1637
 
+20/06/25 09:52:19: huge performance fixes
+                 - auxiliary: 119
+                 - index: 17
+                 - script: 1034
+                 - style: 197
+                 - enemy: 308
+                 - TOTAL: 1675
+
+20/06/25 09:59:22: gate stuff
+                 - auxiliary: 119
+                 - index: 17
+                 - script: 1034
+                 - style: 201
+                 - enemy: 308
+                 - TOTAL: 1679
+
+20/06/25 15:19:36: added ammo count (gun shape? mags?)
+                 - auxiliary: 119
+                 - index: 19
+                 - script: 1050
+                 - style: 226
+                 - enemy: 324
+                 - TOTAL: 1738
+
