@@ -209,3 +209,11 @@
                  - enemy: 324
                  - TOTAL: 1738
 
+23/06/25 10:46:22: added bars & performance upgrades
+                 - auxiliary: 119
+                 - index: 31
+                 - script: 1067
+                 - style: 253
+                 - enemy: 351
+                 - TOTAL: 1821
+
