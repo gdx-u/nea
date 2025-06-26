@@ -159,7 +159,7 @@ document.onclick = e => {
             player.indicator_angle,
             4,
             "player",
-            200
+            200 * tile_size / 32
         );
         player_ammo--;
         if (player_ammo == 0) {
@@ -201,15 +201,20 @@ class Enemy {
         };
 
         this.ranges = {
-            "turret": 400,
-            "ghost": 600,
-            "juggernaut": 1000
+            "turret": 400 * tile_size / 32,
+            "ghost": 600 * tile_size / 32,
+            "juggernaut": 1000 * tile_size / 32
         };
 
         this.tick_count = 0;
         this.el = document.createElement("div");
         this.el.className = `${this.information.type} enemy`;
-        this.el.style.background = this.colours[this.information.type];
+        // this.el.style.background = this.colours[this.information.type];
+        if (this.colours[this.information.type].includes("url")) {
+            this.el.style.backgroundImage = this.colours[this.information.type];
+        } else {
+            this.el.style.background = this.colours[this.information.type];
+        }
         // if (this.information.type == "ghost") {
         //     this.el.style.opacity = "0";
         // }
@@ -271,7 +276,7 @@ class Enemy {
                     angle - Math.PI / 2,
                     4,
                     "enemy",
-                    400
+                    400 * tile_size / 32
                 );
                 break;
 
@@ -329,6 +334,9 @@ class Enemy {
 
 function health(P) {
     const percent = P.health; // Change this to any value from 0 to 100
+    if (P.health <= 0) {
+        window.location.reload();
+    }
     const circle = document.getElementById("health-circle");
     const radius = circle.r.baseVal.value;
     const circumference = 2 * Math.PI * radius;
