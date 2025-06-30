@@ -3,7 +3,7 @@ const fps_el = document.getElementById("fps");
 
 const maze_gen_test = false;
 
-let tile_size = 32;
+let tile_size = 48;
 let max_depth = 4;
 let num_rooms = 3;
 let sleep_time = 1;
@@ -12,12 +12,13 @@ const pxl = 1 / tile_size;
 
 const damage_values = {
     "tile": 20,
-    "enemy": 5
+    "enemy": 5,
+    "bullet": 10
 }
 
 if (maze_gen_test) {
-    tile_size = 1;
-    max_depth = 40;
+    tile_size = 4;
+    max_depth = 20;
     num_rooms = 1;
     sleep_time = 1;
 }
@@ -67,7 +68,6 @@ class Tile {
         this.classes = information.classes || [];
         this.information = information;
         this.colours = {
-            // "wall": "#949396" // Taupe gray if you're interested
             "wall": "#414a4c",
             "lava": "#ff7f27"
         }
@@ -90,11 +90,11 @@ class Tile {
         this.active = true;
     }
 
-    tick() {
-        // this.el.style.left = `${this.x * tile_size - player_x}px`;
-        // this.el.style.top = `${this.y * tile_size - player_y}px`;
-        // this.el.style.transform = `translate(${this.x * tile_size - player_x}px, ${this.y * tile_size - player_y}px)`;
-    }
+    // tick() {
+    //     // this.el.style.left = `${this.x * tile_size - player_x}px`;
+    //     // this.el.style.top = `${this.y * tile_size - player_y}px`;
+    //     // this.el.style.transform = `translate(${this.x * tile_size - player_x}px, ${this.y * tile_size - player_y}px)`;
+    // }
 
     append_el() {
         if (!this.append) {
@@ -107,8 +107,8 @@ class Tile {
 
 class Player {
     constructor() {
-        this.terminal = 8 * slowdown; // Max speed
-        this.base_speed = 1; // For dashing
+        this.terminal = 8 * slowdown * tile_size / 32; // Max speed
+        this.base_speed = tile_size / 32; // For dashing
         this.dashing = false;
 
         this.type = "player";
@@ -135,6 +135,10 @@ class Player {
                 this.keys[ev.key.toLowerCase()] = {
                     held_for: 0 // Used for charging up attacks etc.
                 }; 
+
+                if (ev.key.toLowerCase() == "v") {
+                    vignette_flash();
+                }
             }
         };
 
@@ -176,14 +180,34 @@ class Player {
         const indicator_bound = this.indicator.getBoundingClientRect();
         this.iw = indicator_bound.width;
         this.ih = indicator_bound.height;
+
+        this.dx = 0;
+        this.dy = 0;
+
+        this.time_since_damage = 0;
+
+        this.information = {
+            reload_bar: document.getElementById("reload-indicator-progress"),
+            reload_background: document.getElementById("reload-indicator")
+        };
     }
 
     tick() {
         let dt;
         let relevant_tiles = get_relevant_tiles(
-            this.center_x, this.center_y, 100,
+            this.center_x, this.center_y, 100 * tile_size / 32,
             (tile, px, py) => {return [tile.x * tile_size - player_x - px + tile.width / 2, tile.y * tile_size - player_y - py + tile.height / 2]}
         );
+
+        if (frame % 50 == 0 && !this.dashing) {
+            this.stamina = clamp(this.stamina + 1, 0, 100);
+            stamina(this);
+        }
+        if (frame % 200 == 0 && this.time_since_damage) {
+            this.health = clamp(this.health + 1, 0, 100);
+            console.log(this.health);
+            health(this);
+        }
 
         for (let tile of relevant_tiles) {
             if (tile.information.is_gate) {
@@ -231,6 +255,8 @@ class Player {
             // }
             dt = elapsed / mspf;
         }
+
+        this.time_since_damage += dt * mspf;
         
         frame++;
         
@@ -248,7 +274,7 @@ class Player {
             (held_keys.includes("w") || held_keys.includes("s"))
             ) v *= 1 / Math.SQRT2;
             
-        if (held_keys.includes(" ") && this.keys[" "].held_for == 1 && this.base_speed == 1) {
+        if (held_keys.includes(" ") && this.keys[" "].held_for == 1 && this.base_speed == 1 && this.stamina >= 10) {
             this.base_speed = 3.6;
             this.dashing = true;
             this.stamina -= 10;
@@ -280,6 +306,7 @@ class Player {
         }
         player_x += x_movement;
         player_x = Math.round(player_x);
+        this.dx = x_movement;
         
         if (x_movement) {
             for (let enemy of Enemy.enemies) {
@@ -346,6 +373,7 @@ class Player {
         }
         player_y += y_movement;
         player_y = Math.round(player_y);
+        this.dy = y_movement;
 
         if (y_movement) {
             for (let enemy of Enemy.enemies) {
@@ -404,6 +432,11 @@ class Player {
             }
         }
 
+        if (frame % 50 == 0 && !this.dashing && this.dx == 0 && this.dy == 0) {
+            this.stamina = clamp(this.stamina + 1, 0, 100);
+            stamina(this);
+        }
+
         // Update tiles
 
         // for (let tile of Tile.tiles) tile.tick();
@@ -416,7 +449,7 @@ class Player {
         const dy = mouse_y - this.center_y;
         const angle = Math.atan2(dy, dx);
 
-        const radius = (this.bound.width / 2) + 15; // adjust “20” as needed
+        const radius = (this.bound.width / 2) + 15 * (tile_size / 32);
 
         const cx = this.center_x + Math.cos(angle) * radius;
         const cy = this.center_y + Math.sin(angle) * radius;
@@ -433,7 +466,6 @@ class Player {
     }
 
     boom_loop(x, y) {
-        console.log(x, y);
         player_lock = true;
         this.invulnerable = true;
         let interval = window.setInterval(() => {
@@ -564,19 +596,24 @@ class Player {
         }
         
         if (["enemy", "bullet"].includes(origin.type)) this.boom_loop(dxs * 6, dys * 6);
+        else if (origin.type == "tile" && origin.information.type == "lava") this.boom_loop(-Math.sign(this.dx) * 6, -Math.sign(this.dy) * 6);
         
+        console.log(origin.type);
         this.health -= damage_values[origin.type];
         health(this);
+        vignette_flash();
 
-        document.body.classList.add("flash");
+        this.el.classList.add("flash");
         window.setTimeout(() => {
-            document.body.classList.remove("flash");
+            this.el.classList.remove("flash");
         }, 40);
         
         switch (origin.type) {
             case "tile":
                 switch (origin.information.type) {
                     case "lava":
+                        this.invulnerable = true;
+                        window.setTimeout(() => {this.invulnerable = false}, 500);
                         let x = origin.x;
                         let y = origin.y;
                         // TODO
@@ -646,6 +683,7 @@ function create_tile_div(x, y, information) {
     // Note that not multiplying px/py by tile_size allows the map to go off-grid.
 
     tile.style.background = information.colour;
+    tile.style.borderColor = information.colour;
 
     tile_map[[x, y]] = information;
     // TODO: explain
@@ -1056,6 +1094,12 @@ async function load_room(off_x, off_y, room_id, entrance, depth, from_id) {
 
 
     return true;
+}
+
+async function vignette_flash() {
+    document.body.classList.add("vignette");
+    await sleep(60);
+    document.body.classList.remove("vignette");
 }
 
 // --- === ≡≡≡ MAIN BODY ≡≡≡ === --- //

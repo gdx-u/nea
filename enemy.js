@@ -140,22 +140,35 @@ class Bullet {
 }
 
 async function reload() {
+    player.information.reload_background.hidden = false;
+    player.information.reload_bar.hidden = false;
+
+    let bar = player.information.reload_bar;
+    let portion = player_ammo / player_max_ammo;
+    let coverage = portion * player_size;
+    bar.style.width = `${coverage}px`;
+    // bar.style.width = "0px";
     can_shoot = false;
     await sleep(300);
     let o_player_ammo = player_ammo;
     for (let i = 0; i < player_max_ammo - o_player_ammo; i++) {
         player_ammo++;
+        let portion = player_ammo / player_max_ammo;
+        let coverage = portion * player_size;
+        bar.style.width = `${coverage}px`;
         load_bullets();
         await sleep(reload_time / player_max_ammo);
     }
     can_shoot = true;
+    player.information.reload_background.hidden = true;
+    player.information.reload_bar.hidden = true;
 }
 
-document.onclick = e => {
+document.onmousedown = e => {
     if (player_ammo > 0 && can_shoot) {
         let bullet = new Bullet(
-            player.indicator_x, 
-            player.indicator_y,
+            player.indicator_x - tile_size / 8, 
+            player.indicator_y - tile_size / 8,
             player.indicator_angle,
             4,
             "player",
@@ -179,7 +192,7 @@ document.onclick = e => {
 }
 
 document.onkeydown = e => {
-    if (e.key.toLowerCase() == "r" && can_shoot) {
+    if (e.key.toLowerCase() == "r" && can_shoot && player_ammo < player_max_ammo) {
         reload();
     }
 }
@@ -335,7 +348,8 @@ class Enemy {
 function health(P) {
     const percent = P.health; // Change this to any value from 0 to 100
     if (P.health <= 0) {
-        window.location.reload();
+        document.getElementById("death-curtain").style.top = "0";
+        // window.location.reload();
     }
     const circle = document.getElementById("health-circle");
     const radius = circle.r.baseVal.value;
@@ -343,6 +357,19 @@ function health(P) {
     
     const offset = circumference - (percent / 100) * circumference;
     circle.style.strokeDashoffset = offset;
+
+    if (percent < 20 && !P.information.vignette_interval) {
+        P.information.vignette_interval = window.setInterval(async () => {
+            vignette_flash();
+            await sleep(150);
+            vignette_flash();
+
+            if (P.health > 20) {
+                window.clearInterval(P.information.vignette_interval);
+                delete P.information.vignette_interval;
+            }
+        }, 1000)
+    }
 }
 
 function stamina(P) {

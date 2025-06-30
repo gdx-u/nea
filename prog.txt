@@ -217,3 +217,19 @@
                  - enemy: 351
                  - TOTAL: 1821
 
+30/06/25 09:41:40: vignette and dat
+                 - auxiliary: 119
+                 - index: 34
+                 - script: 1110
+                 - style: 284
+                 - enemy: 372
+                 - TOTAL: 1919
+
+30/06/25 14:35:50: added death curtain and some other bugfixes
+                 - auxiliary: 119
+                 - index: 42
+                 - script: 1111
+                 - style: 332
+                 - enemy: 386
+                 - TOTAL: 1990
+
