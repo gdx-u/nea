@@ -233,3 +233,11 @@
                  - enemy: 386
                  - TOTAL: 1990
 
+01/07/25 09:27:06: backup
+                 - auxiliary: 119
+                 - index: 42
+                 - script: 1116
+                 - style: 336
+                 - enemy: 362
+                 - TOTAL: 1975
+

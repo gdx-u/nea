@@ -15,7 +15,7 @@ body {
     height: 100vh;
     background-color: white;
     transition: box-shadow 200ms ease-out;
-    z-index: 1000000000;
+    z-index: 9;
 }
 
 .player.flash {
@@ -48,7 +48,7 @@ body {
     width: var(--tile-size);
     height: var(--tile-size);
 
-    z-index: 100;
+    z-index: 2;
 
     transition: opacity 200ms ease-in-out, height 300ms cubic-bezier(1,0,.38,1), width 300ms cubic-bezier(1,0,.38,1), transform 300ms cubic-bezier(1,0,.38,1);
 
@@ -60,7 +60,7 @@ body {
     position: absolute;
 
     background-color: #ddd;
-    z-index: -100;
+    z-index: -2;
 }
 
 #fps {
@@ -83,7 +83,7 @@ body {
     border-radius: calc(var(--tile-size) / 4);
 
     background-color: red;
-    z-index: 10000;
+    z-index: 4;
 }
 
 .enemy {
@@ -93,7 +93,7 @@ body {
     width: var(--tile-size);
     height: var(--tile-size);
 
-    z-index: 10000;
+    z-index: 4;
 }
 
 .turret {
@@ -114,7 +114,7 @@ body {
     background-color: black;
     border-radius: var(--player-size);
 
-    z-index: 1000;
+    z-index: 3;
 
     /* transform: translate(0, calc(-1 * var(--player-size))); */
 
@@ -140,7 +140,7 @@ body {
 
     transform-origin: center center;
 
-    z-index: 1000;
+    z-index: 3;
 }
 
 .in_gate, .entrance_gate {
@@ -148,7 +148,7 @@ body {
     border-radius: 4px;
     position: absolute;
     display: block;
-    z-index: 100000;
+    z-index: 5;
 }
 
 .gate.horizontal {
@@ -187,7 +187,7 @@ body {
     border: 8px solid #e0e0e0;
     border-radius: 10px;
     background: #eee;
-    z-index: 1000000;
+    z-index: 6;
     box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.45);
     overflow: hidden;
 }
@@ -203,7 +203,7 @@ body {
     border-right: 8px solid #e0e0e0;
     border-radius: 30px 30px 0px 0px;
     position: absolute;
-    z-index: 1000001;
+    z-index: 7;
     /* box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.25); */
     /* box-shad */
 }
@@ -217,7 +217,7 @@ body {
     left: calc(76.9vw + 6px);
     /* top: calc(85vh - 3.492vw); */
     top: calc(81.508vh + 4px);
-    z-index: 1000002;
+    z-index: 8;
 }
 
 .circle-container {
@@ -242,7 +242,7 @@ body {
     margin-left: -4px;
     padding: 0;
     border-radius: 4px 4px 0 0;
-    z-index: 1000000;
+    z-index: 6;
     /* background: linear-gradient(#895C2B 0%, #895C2B 10%, #928929 10%); */
     background: #444;
     transition: margin-top 200ms ease-in-out, transform 200ms ease-in-out;
@@ -255,7 +255,7 @@ body {
 
 #health {
     position: absolute;
-    z-index: 10000000;
+    z-index: 9;
     left: 10px;
     top: 10px;
     transform: rotate(-90deg);
@@ -273,7 +273,7 @@ body {
 
 #stamina {
     position: absolute;
-    z-index: 10000000;
+    z-index: 9;
     left: 10px;
     top: 10px;
     transform: rotate(-90deg);
@@ -282,7 +282,7 @@ body {
 
 
 .vignette {
-    box-shadow: 0 0 200px rgba(255, 0, 0, 0.3) inset;
+    box-shadow: 0 0 400px rgba(255, 0, 0, 0.5) inset;
     transition: box-shadow 60ms ease-out;
 }
 
@@ -291,7 +291,7 @@ body {
     left: calc(100vw / 2 - var(--player-size) / 2 - var(--offset-x));
     top: calc(100vh / 2 - var(--player-size) / 2 - var(--offset-y) - 10px);
     height: 4px;
-    z-index: 100000000
+    z-index: 11
 }
 
 .reload-indicator {
@@ -312,21 +312,33 @@ body {
     position: absolute;
     top: -100vh;
     left: 0;
-    transition: top 200ms ease-out;
     background: black;
-    z-index: 1000000000000;
+    z-index: 14;
     font-size: 200px;
     line-height: 100vh;
     color: white;
     text-align: center;
     font-weight: 900;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    transition: top 200ms ease-out;
 }
 
 .death-curtain > .subtitle {
     top: 60vh;
-    /* z-index: 10000000000000; */
     height: 200px;
     line-height: 200px;
     font-size: 75px;
+    border: 4px solid #333;
+    border-radius: 12px;
+    width: 50vw;
+    left: 25vw;
+}
+
+.death-curtain-segment {
+    position: absolute;
+    top: -100vh;
+    height: 100vh;
+    background: black;
+    transition: top 200ms;
+    z-index: 12;
 }

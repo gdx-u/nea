@@ -138,6 +138,9 @@ class Player {
 
                 if (ev.key.toLowerCase() == "v") {
                     vignette_flash();
+                } else if (ev.key.toLowerCase() == "h") {
+                    this.health = clamp(this.health + 20, 0, 100);
+                    health(this);
                 }
             }
         };
@@ -192,7 +195,128 @@ class Player {
         };
     }
 
-    tick() {
+    run_collision(x, y, T, force) {
+        force = force || false;
+        let took_damage = false;
+        if (x || force) {
+            for (let enemy of Enemy.enemies) {
+                if (collides(
+                    this.tlx,
+                    this.tly,
+                    player_size,
+                    player_size,
+                    enemy.x * tile_size - player_x,
+                    enemy.y * tile_size - player_y,
+                    tile_size,
+                    tile_size
+                ) && !this.dashing) {
+                    this.damage(enemy);
+                    enemy.remove();
+                }
+            }
+
+            for (let tile of T) {
+                let changed = false;
+                let exit = false;
+                while (collides(
+                    this.tlx, 
+                    this.tly,
+                    player_size,
+                    player_size, 
+                    tile.x * tile_size - player_x, 
+                    tile.y * tile_size - player_y,
+                    tile.width,
+                    tile.height
+                ) && !exit) {
+                    switch (tile.information.type) {
+                        case "lava":
+                            if (this.dashing) {
+                                exit = true;
+                                break;
+                            } else {
+                                this.damage(tile);
+                                changed = true;
+                                exit = true;
+                                took_damage = true;
+                            }
+                            break;
+                        default:
+                            if (tile_properties[tile.information.type].solid && tile.active) {
+                                player_x -= Math.sign(x);
+                                changed = true;
+                                break;
+                            } else {
+                                exit = true;
+                                break;
+                            }
+                    }
+                }
+                if (changed) break;
+            }
+        }
+
+        if (y || force) {
+            for (let enemy of Enemy.enemies) {
+                if (collides(
+                    this.tlx,
+                    this.tly,
+                    player_size,
+                    player_size,
+                    enemy.x * tile_size - player_x,
+                    enemy.y * tile_size - player_y,
+                    tile_size,
+                    tile_size
+                ) && !this.dashing) {
+                    this.damage(enemy);
+                    enemy.remove();
+                }
+            }
+
+            for (let tile of T) {
+                let changed = false;
+                let exit = false;
+                while (collides(
+                    this.tlx, 
+                    this.tly,
+                    player_size,
+                    player_size, 
+                    tile.x * tile_size - player_x, 
+                    tile.y * tile_size - player_y,
+                    tile.width,
+                    tile.height
+                ) && !exit) {
+                    switch (tile.information.type) {
+                        case "lava":
+                            if (this.dashing) {
+                                exit = true;
+                                break;
+                            } else {
+                                this.damage(tile);
+                                changed = true;
+                                exit = true;
+                                took_damage = true;
+                            }
+                            break;
+                        default:
+                            if (tile_properties[tile.information.type].solid && tile.active) {
+                                player_y -= Math.sign(y);
+                                changed = true;
+                                break;
+                            } else {
+                                exit = true;
+                                break;
+                            }
+                    }
+                    
+                }
+                if (changed) break;
+            }
+        }
+
+        return took_damage;
+    }
+
+    async tick() {
         let dt;
         let relevant_tiles = get_relevant_tiles(
             this.center_x, this.center_y, 100 * tile_size / 32,
@@ -284,6 +408,7 @@ class Player {
             this.base_speed = Math.max(1, this.base_speed * 0.97);
             if (this.base_speed < 1.2 && this.dashing) {
                 this.dashing = false;
+                while (this.run_collision(0, 0, relevant_tiles, true)) await sleep(500);
                 this.el.classList.remove("dashing");
             }
         }
@@ -304,65 +429,15 @@ class Player {
             // x_movement = v * Math.min(this.keys["d"].held_for, this.terminal);
             x_movement = v * this.terminal;
         }
+        this.dx = -x_movement;
+        let back_x = this.run_collision(-x_movement, 0, relevant_tiles);
+
         player_x += x_movement;
         player_x = Math.round(player_x);
         this.dx = x_movement;
         
-        if (x_movement) {
-            for (let enemy of Enemy.enemies) {
-                if (collides(
-                    this.tlx,
-                    this.tly,
-                    player_size,
-                    player_size,
-                    enemy.x * tile_size - player_x,
-                    enemy.y * tile_size - player_y,
-                    tile_size,
-                    tile_size
-                ) && !this.dashing) {
-                    this.damage(enemy);
-                    enemy.remove();
-                }
-            }
-
-            for (let tile of relevant_tiles) {
-                let changed = false;
-                let exit = false;
-                while (collides(
-                    this.tlx, 
-                    this.tly,
-                    player_size,
-                    player_size, 
-                    tile.x * tile_size - player_x, 
-                    tile.y * tile_size - player_y,
-                    tile.width,
-                    tile.height
-                ) && !exit) {
-                    switch (tile.information.type) {
-                        case "lava":
-                            if (this.dashing) {
-                                exit = true;
-                                break;
-                            } else {
-                                this.damage(tile);
-                                changed = true;
-                                exit = true;
-                            }
-                            break;
-                        default:
-                            if (tile_properties[tile.information.type].solid && tile.active) {
-                                player_x -= Math.sign(x_movement);
-                                changed = true;
-                                break;
-                            } else {
-                                exit = true;
-                                break;
-                            }
-                    }
-                }
-                if (changed) break;
-            }
-        }
+        if (!back_x) this.run_collision(x_movement, 0, relevant_tiles);
+        // 
 
 
         if (held_keys.includes("w")) {
@@ -371,66 +446,14 @@ class Player {
         } else if (held_keys.includes("s")) {
             y_movement = v * this.terminal;
         }
+        this.dy = -y_movement;
+        let back_y = this.run_collision(0, -y_movement, relevant_tiles);
+
         player_y += y_movement;
         player_y = Math.round(player_y);
         this.dy = y_movement;
 
-        if (y_movement) {
-            for (let enemy of Enemy.enemies) {
-                if (collides(
-                    this.tlx,
-                    this.tly,
-                    player_size,
-                    player_size,
-                    enemy.x * tile_size - player_x,
-                    enemy.y * tile_size - player_y,
-                    tile_size,
-                    tile_size
-                ) && !this.dashing) {
-                    this.damage(enemy);
-                    enemy.remove();
-                }
-            }
-
-            for (let tile of relevant_tiles) {
-                let changed = false;
-                let exit = false;
-                while (collides(
-                    this.tlx, 
-                    this.tly,
-                    player_size,
-                    player_size, 
-                    tile.x * tile_size - player_x, 
-                    tile.y * tile_size - player_y,
-                    tile.width,
-                    tile.height
-                ) && !exit) {
-                    switch (tile.information.type) {
-                        case "lava":
-                            if (this.dashing) {
-                                exit = true;
-                                break;
-                            } else {
-                                this.damage(tile);
-                                changed = true;
-                                exit = true;
-                            }
-                            break;
-                        default:
-                            if (tile_properties[tile.information.type].solid && tile.active) {
-                                player_y -= Math.sign(y_movement);
-                                changed = true;
-                                break;
-                            } else {
-                                exit = true;
-                                break;
-                            }
-                    }
-                    
-                }
-                if (changed) break;
-            }
-        }
+        if (!back_y) this.run_collision(0, y_movement, relevant_tiles);
 
         if (frame % 50 == 0 && !this.dashing && this.dx == 0 && this.dy == 0) {
             this.stamina = clamp(this.stamina + 1, 0, 100);
@@ -466,6 +489,7 @@ class Player {
     }
 
     boom_loop(x, y) {
+        console.log(x, y);
         player_lock = true;
         this.invulnerable = true;
         let interval = window.setInterval(() => {
@@ -486,88 +510,13 @@ class Player {
             player_x += x;
             player_x = Math.round(player_x);
             
-            if (x) {
-                for (let tile of relevant_tiles) {
-                    let changed = false;
-                    let exit = false;
-                    while (collides(
-                        this.tlx, 
-                        this.tly,
-                        player_size,
-                        player_size, 
-                        tile.x * tile_size - player_x, 
-                        tile.y * tile_size - player_y,
-                        tile.width,
-                        tile.height
-                    ) && !exit) {
-                        switch (tile.information.type) {
-                            case "lava":
-                                if (this.dashing) {
-                                    exit = true;
-                                    break;
-                                } else {
-                                    this.damage(tile);
-                                    changed = true;
-                                    exit = true;
-                                }
-                                break;
-                            default:
-                                if (tile_properties[tile.information.type].solid && tile.active) {
-                                    player_x -= Math.sign(x);
-                                    changed = true;
-                                    break;
-                                } else {
-                                    exit = true;
-                                    break;
-                                }
-                        }
-                    }
-                    if (changed) break;
-                }
-            }
+            
+            this.run_collision(x, 0, relevant_tiles);
+
             player_y += y;
             player_y = Math.round(player_y);
 
-            if (y) {
-                for (let tile of relevant_tiles) {
-                    let changed = false;
-                    let exit = false;
-                    while (collides(
-                        this.tlx, 
-                        this.tly,
-                        player_size,
-                        player_size, 
-                        tile.x * tile_size - player_x, 
-                        tile.y * tile_size - player_y,
-                        tile.width,
-                        tile.height
-                    ) && !exit) {
-                        switch (tile.information.type) {
-                            case "lava":
-                                if (this.dashing) {
-                                    exit = true;
-                                    break;
-                                } else {
-                                    this.damage(tile);
-                                    changed = true;
-                                    exit = true;
-                                }
-                                break;
-                            default:
-                                if (tile_properties[tile.information.type].solid && tile.active) {
-                                    player_y -= Math.sign(y);
-                                    changed = true;
-                                    break;
-                                } else {
-                                    exit = true;
-                                    break;
-                                }
-                        }
-                        
-                    }
-                    if (changed) break;
-                }
-            }
+            this.run_collision(0, y, relevant_tiles);
 
             // Update tiles
 
@@ -579,7 +528,12 @@ class Player {
 
     damage(origin, bypasses_dash) {
         bypasses_dash = bypasses_dash || false;
-        if (!bypasses_dash && this.dashing || this.invulnerable) return;
+        if (!bypasses_dash && this.dashing) return;
+        if (this.invulnerable) {
+            // if (["enemy", "bullet"].includes(origin.type)) this.boom_loop(dxs * 6, dys * 6);
+            // else if (origin.type == "tile" && origin.information.type == "lava") this.boom_loop(-Math.sign(this.dx) * 6, -Math.sign(this.dy) * 6);
+            return;
+        }
 
         let ox = origin.x * tile_size - player_x + tile_size / 2;
         let oy = origin.y * tile_size - player_y + tile_size / 2;
@@ -612,8 +566,8 @@ class Player {
             case "tile":
                 switch (origin.information.type) {
                     case "lava":
-                        this.invulnerable = true;
-                        window.setTimeout(() => {this.invulnerable = false}, 500);
+                        // this.invulnerable = true;
+                        // window.setTimeout(() => {this.invulnerable = false}, 500);
                         let x = origin.x;
                         let y = origin.y;
                         // TODO

@@ -31,15 +31,8 @@ function load_bullets() {
     if (player_ammo < 10) {
         document.getElementById("ammo").innerHTML = "&nbsp;" + document.getElementById("ammo").innerHTML;
     }
-    // holder.innerHTML = "";
-    // let bullet_width = Math.min((window.innerWidth * 0.2 - 20) / (player_max_ammo) - 3, 20);
     [...holder.children].forEach(e => e.classList.add("hidden"));
     for (let i = 0; i < player_ammo; i++) {
-        // let bullet = document.createElement("div");
-        // bullet.className = "bullet-gui";
-        // bullet.style.left = `${(3 + bullet_width) * i + 16}px`;
-        // bullet.style.width = `${bullet_width}px`;
-        // holder.appendChild(bullet);
         holder.children[i].classList.remove("hidden");
     };
 }
@@ -85,7 +78,6 @@ class Bullet {
     tick() {
         this.lifetime++;
 
-        // this.el.style.opacity = `${1 - (this.distance_traveled / this.range)}`;
 
         this.distance_traveled = Math.hypot(this.ox - this.x, this.oy - this.y);
         if (this.lifetime > 500 || this.distance_traveled > this.range) {
@@ -99,8 +91,6 @@ class Bullet {
         let vis_x = this.x - player_x + this.opx;
         let vis_y = this.y - player_y + this.opy;
 
-        // this.el.style.left = `${vis_x}px`;
-        // this.el.style.top = `${vis_y}px`;
         this.el.style.transform = `translate(${vis_x}px, ${vis_y}px)`;
 
         for (let entity of Enemy.enemies.concat(player)) {
@@ -147,7 +137,6 @@ async function reload() {
     let portion = player_ammo / player_max_ammo;
     let coverage = portion * player_size;
     bar.style.width = `${coverage}px`;
-    // bar.style.width = "0px";
     can_shoot = false;
     await sleep(300);
     let o_player_ammo = player_ammo;
@@ -222,15 +211,11 @@ class Enemy {
         this.tick_count = 0;
         this.el = document.createElement("div");
         this.el.className = `${this.information.type} enemy`;
-        // this.el.style.background = this.colours[this.information.type];
         if (this.colours[this.information.type].includes("url")) {
             this.el.style.backgroundImage = this.colours[this.information.type];
         } else {
             this.el.style.background = this.colours[this.information.type];
         }
-        // if (this.information.type == "ghost") {
-        //     this.el.style.opacity = "0";
-        // }
         this.update_position();
         this.tick_interval = window.setInterval(() => {this.tick()}, 30);
 
@@ -307,9 +292,6 @@ class Enemy {
 
                 
                 for (let i = 0; i < 50; i++) {
-                    // let dx = px - x;
-                    // let dy = y - py;
-                    // this.el.style.opacity = String(Math.pow(1 - Math.hypot(dx, dy) / this.ranges[this.information.type], 1));
                     if (this.removed) return;
                     this.x += step_x;
                     this.y += step_y;
@@ -337,19 +319,41 @@ class Enemy {
     }
 
     damage() {
-        // this.el.parentElement.removeChild(this.el);
         Enemy.enemies = remove(Enemy.enemies, this); 
         this.remove();
-        // window.clearInterval(this.tick_interval);
     }
 }
 
+let curtains = 10;
+
+function setup_curtain() {
+    // let i = 0;
+    let n = curtains;
+    let width = window.innerWidth / n;
+    for (let i = 0; i < n; i++) {
+        let el = document.createElement("div");
+        el.className = "death-curtain-segment";
+        el.style.left = `${i * width}px`;
+        el.style.width = `${width}px`;
+        document.body.append(el);
+    }
+}
+
+async function die() {
+    setup_curtain();
+    for (let el of document.getElementsByClassName("death-curtain-segment")) {
+        el.style.top = "0";
+        await sleep(30 * 20 / curtains);
+    }
+
+    document.getElementById("death-curtain").style.top = "0";
+}
 
 function health(P) {
-    const percent = P.health; // Change this to any value from 0 to 100
+    const percent = P.health;
     if (P.health <= 0) {
-        document.getElementById("death-curtain").style.top = "0";
-        // window.location.reload();
+        // document.getElementById("death-curtain").style.top = "0";
+        die();
     }
     const circle = document.getElementById("health-circle");
     const radius = circle.r.baseVal.value;
@@ -373,7 +377,7 @@ function health(P) {
 }
 
 function stamina(P) {
-    const percent = P.stamina; // Change this to any value from 0 to 100
+    const percent = P.stamina;
     const circle = document.getElementById("stamina-circle");
     const radius = circle.r.baseVal.value;
     const circumference = 2 * Math.PI * radius;
@@ -381,6 +385,3 @@ function stamina(P) {
     const offset = circumference - (percent / 100) * circumference;
     circle.style.strokeDashoffset = offset;
 }
-
-// health();
-// stamina();
