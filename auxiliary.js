@@ -117,3 +117,5 @@ function get_player_room() {
 
     return -1;
 }
+
+const shuffle = (arr) => random_choice_multiple(arr, arr.length);

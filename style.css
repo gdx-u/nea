@@ -328,7 +328,7 @@ body {
     height: 200px;
     line-height: 200px;
     font-size: 75px;
-    border: 4px solid #333;
+    /* border: 4px solid #333; */
     border-radius: 12px;
     width: 50vw;
     left: 25vw;
@@ -339,6 +339,37 @@ body {
     top: -100vh;
     height: 100vh;
     background: black;
-    transition: top 200ms;
+    /* transition: top 200ms; */
     z-index: 12;
+}
+
+.death-curtain-segment.fallen {
+    animation: bounce 1.2s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+@keyframes bounce {
+    0% {
+        top: -100vh;
+        animation-timing-function: ease-in;
+    }
+    60% {
+        top: 0;
+        animation-timing-function: ease-out;
+    }
+    75% {
+        top: -70px;
+        animation-timing-function: ease-in;
+    }
+    90% {
+        top: 0;
+        animation-timing-function: ease-out;
+    }
+    95% {
+        top: -30px;
+        animation-timing-function: ease-in;
+    }
+    100% {
+        top: 0;
+        animation-timing-function: ease-out;
+    }
 }

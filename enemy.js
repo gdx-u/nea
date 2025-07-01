@@ -59,11 +59,14 @@ class Bullet {
         this.origin = origin;
         this.type = "bullet";
 
+        
         this.tick_interval = window.setInterval(() => {this.tick()}, mspf);
-
+        
         this.el = document.createElement("div");
         this.el.className = "bullet";
         document.body.appendChild(this.el);
+        this.tick();
+        
 
         this.lifetime = 0;
         this.distance_traveled = 0;
@@ -341,10 +344,14 @@ function setup_curtain() {
 
 async function die() {
     setup_curtain();
-    for (let el of document.getElementsByClassName("death-curtain-segment")) {
-        el.style.top = "0";
+    await sleep(30 * 20 / curtains);
+    for (let el of shuffle([...document.getElementsByClassName("death-curtain-segment")])) {
+        // el.style.top = "0";
+        el.classList.add("fallen");
         await sleep(30 * 20 / curtains);
     }
+
+    await sleep(300);
 
     document.getElementById("death-curtain").style.top = "0";
 }

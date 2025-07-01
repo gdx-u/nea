@@ -195,8 +195,9 @@ class Player {
         };
     }
 
-    run_collision(x, y, T, force) {
+    run_collision(x, y, T, force, do_boom) {
         force = force || false;
+        do_boom = do_boom == false ? false : true;
         let took_damage = false;
         if (x || force) {
             for (let enemy of Enemy.enemies) {
@@ -230,15 +231,12 @@ class Player {
                 ) && !exit) {
                     switch (tile.information.type) {
                         case "lava":
-                            if (this.dashing) {
-                                exit = true;
-                                break;
-                            } else {
-                                this.damage(tile);
-                                changed = true;
-                                exit = true;
-                                took_damage = true;
-                            }
+                            exit = true;
+                            if (this.dashing) break;
+
+                            this.damage(tile, false, do_boom);
+                            changed = true;
+                            took_damage = true;
                             break;
                         default:
                             if (tile_properties[tile.information.type].solid && tile.active) {
@@ -255,7 +253,7 @@ class Player {
             }
         }
 
-        if (y || force) {
+        if (y) {
             for (let enemy of Enemy.enemies) {
                 if (collides(
                     this.tlx,
@@ -291,7 +289,7 @@ class Player {
                                 exit = true;
                                 break;
                             } else {
-                                this.damage(tile);
+                                this.damage(tile, false, do_boom);
                                 changed = true;
                                 exit = true;
                                 took_damage = true;
@@ -329,7 +327,6 @@ class Player {
         }
         if (frame % 200 == 0 && this.time_since_damage) {
             this.health = clamp(this.health + 1, 0, 100);
-            console.log(this.health);
             health(this);
         }
 
@@ -408,8 +405,8 @@ class Player {
             this.base_speed = Math.max(1, this.base_speed * 0.97);
             if (this.base_speed < 1.2 && this.dashing) {
                 this.dashing = false;
-                while (this.run_collision(0, 0, relevant_tiles, true)) await sleep(500);
                 this.el.classList.remove("dashing");
+                while (this.run_collision(0, 0, relevant_tiles, true, false)) await sleep(500);
             }
         }
         
@@ -430,7 +427,7 @@ class Player {
             x_movement = v * this.terminal;
         }
         this.dx = -x_movement;
-        let back_x = this.run_collision(-x_movement, 0, relevant_tiles);
+        let back_x = this.run_collision(-x_movement, 0, relevant_tiles, false, false);
 
         player_x += x_movement;
         player_x = Math.round(player_x);
@@ -447,7 +444,7 @@ class Player {
             y_movement = v * this.terminal;
         }
         this.dy = -y_movement;
-        let back_y = this.run_collision(0, -y_movement, relevant_tiles);
+        let back_y = this.run_collision(0, -y_movement, relevant_tiles, false, false);
 
         player_y += y_movement;
         player_y = Math.round(player_y);
@@ -489,7 +486,6 @@ class Player {
     }
 
     boom_loop(x, y) {
-        console.log(x, y);
         player_lock = true;
         this.invulnerable = true;
         let interval = window.setInterval(() => {
@@ -526,13 +522,15 @@ class Player {
         }, mspf);
     }
 
-    damage(origin, bypasses_dash) {
+    damage(origin, bypasses_dash, do_boom) {
         bypasses_dash = bypasses_dash || false;
+        do_boom = do_boom == false ? false : true;
         if (!bypasses_dash && this.dashing) return;
-        if (this.invulnerable) {
-            // if (["enemy", "bullet"].includes(origin.type)) this.boom_loop(dxs * 6, dys * 6);
-            // else if (origin.type == "tile" && origin.information.type == "lava") this.boom_loop(-Math.sign(this.dx) * 6, -Math.sign(this.dy) * 6);
-            return;
+        if (this.invulnerable) return
+
+        if (!do_boom) {
+            this.invulnerable = true;
+            window.setTimeout(() => {this.invulnerable = false}, 500);
         }
 
         let ox = origin.x * tile_size - player_x + tile_size / 2;
@@ -549,11 +547,11 @@ class Player {
             dxs = Math.sign(origin.information.dx);
         }
         
-        if (["enemy", "bullet"].includes(origin.type)) this.boom_loop(dxs * 6, dys * 6);
-        else if (origin.type == "tile" && origin.information.type == "lava") this.boom_loop(-Math.sign(this.dx) * 6, -Math.sign(this.dy) * 6);
+        if (["enemy", "bullet"].includes(origin.type) && do_boom) this.boom_loop(dxs * 6, dys * 6);
+        else if (origin.type == "tile" && origin.information.type == "lava" && do_boom) this.boom_loop(-Math.sign(this.dx) * 6, -Math.sign(this.dy) * 6);
         
-        console.log(origin.type);
         this.health -= damage_values[origin.type];
+        this.health = clamp(this.health, 0, 100);
         health(this);
         vignette_flash();
 
